@@ -1,10 +1,9 @@
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import pandas as pd
-import datetime
 # Read CSV file into DataFrame df
-df_aw = pd.read_csv('activitywatch_output_raw.csv') # activitywatch
-df_gcal = pd.read_csv('calendar_output_raw.csv') # google calendar
+df_aw = pd.read_csv('data/activitywatch_output_raw.csv') # activitywatch
+df_gcal = pd.read_csv('data/calendar_output_raw.csv') # google calendar
 
 #loop through each item in activitywatch. if it falls within a calendar output timeslot, then remove it.
 

@@ -11,7 +11,7 @@ import aw_transform
 from aw_query.functions import filter_period_intersect
 import aw_query
 
-MONTH_OF_INTEREST = 3
+MONTH_OF_INTEREST = 4
 YEAR = 2022
 HOURS_OFF_UTC = -7
 
@@ -67,7 +67,7 @@ print(len(window_events_this_month))
 
 
 
-with open("aw-category-export-api.json", "r") as read_file:
+with open("data/aw-category-export.json", "r") as read_file:
 # with open("aw-category-export.json", "r") as read_file:
      categories = json.load(read_file)['categories']
 

@@ -1,18 +1,19 @@
 from csv_ical import Convert
 import pandas as pd
-from icalendar import Calendar, Event
+from ics import Calendar, Event
 from datetime import datetime, timedelta, timezone
 from dateutil import tz
 import pytz
+import arrow
 
-SAVE_LOCATION = 'gcal.ics'
+SAVE_LOCATION = 'out.ics'
 CSV_FILE_LOCATION = 'calendar_output_raw.csv'
 HOURS_OFF_UTC = -7
-MONTH_OF_INTEREST = 3
+YOUR_EMAIL="morgan@allfed.info"
+MONTH_OF_INTEREST = 4
 YEAR = 2022
 
-
-# return  project, category, description, billable, attended
+# return  project, category, description, billable
 def classify(summary):
     slow = summary.lower()
     if "integrated" in slow:
@@ -42,7 +43,7 @@ def classify(summary):
     elif "discussion" in slow:
         return ("Small Discussion Group","5e56de580121f031bdc3afac", True)
     elif "aaron adamson" in slow:
-        return ("Research","Meeting with Aaron adamson","5e56de580121f031bdc3afac", True)
+        return ("Meeting with Aaron adamson","5e56de580121f031bdc3afac", True)
     elif "kpi" in slow:
         return ("Call about KPIs", "5e56d8767ba4ff284c539e9d", True)
     elif "ukraine" in slow:
@@ -51,11 +52,15 @@ def classify(summary):
         return ("Call about digital resilience", "5f50058c3a37e35cbede35ea", True)
     elif "carina" in slow:
         return ( "Call with carina about trello", "5e56d8767ba4ff284c539e9d", True)
-    return ("UNDEFINED","", False)
+    return ("Research meeting","5e56de580121f031bdc3afac", True)
 
 
 g = open(SAVE_LOCATION,'rb')
-gcal = Calendar.from_ical(g.read())
+text=g.read()
+string=text.decode('utf-8')
+# print(str)
+cal = Calendar(string)
+
 i=0
 df=pd.DataFrame([])
 df_start_time = []
@@ -66,72 +71,91 @@ df_project = []
 df_description = []
 df_billable = []
 
-for component in gcal.walk():
-    if component.name == "VEVENT":
-        start = component.get('dtstart')
-        end = component.get('dtend')
-        if(start is None):
-            # print("startna")
-            # print(component.get('summary'))
-            continue
-        if(end is None):
-            # print(component.get('summary'))
-            # print("endna")
-            continue
-        startdt = start.dt + timedelta(hours=HOURS_OFF_UTC)
-        enddt = end.dt + timedelta(hours=HOURS_OFF_UTC)
+#build up a new calendar ics reflecting just meetings
+new_calendar = Calendar()
 
-        if(startdt is None):
-            # print("startna")
-            # print(component.get('summary'))
-            continue
-        if(enddt is None):
-            # print(component.get('summary'))
-            # print("endna")
-            continue
+for event in cal.events:
+    start = event.begin.datetime
+    end = event.end.datetime
+    if(start is None):
+        # print("startna")
+        # print(component.get('summary'))
+        continue
+    if(end is None):
+        # print(component.get('summary'))
+        # print("endna")
+        continue
+    startdt = start + timedelta(hours=HOURS_OFF_UTC)
+    enddt = end + timedelta(hours=HOURS_OFF_UTC)
 
-        if(startdt.month != MONTH_OF_INTEREST or startdt.year != YEAR):
-            continue
+    if(startdt is None):
+        # print("startna")
+        # print(component.get('summary'))
+        continue
+    if(enddt is None):
+        # print(component.get('summary'))
+        # print("endna")
+        continue
 
-        duration=enddt - startdt
+    if(startdt.month != MONTH_OF_INTEREST or startdt.year != YEAR):
+        continue
 
-        if(duration.seconds/60/60>=7): #remove any really long events
-            continue
+    duration=enddt - startdt
 
-        if(duration.seconds<=10): #remove any really short events
-            print("?")
-            print(component.get('summary'))
-            quit()
-            continue
+    if(duration.seconds/60/60>=7): #remove any really long events
+        continue
 
-        utc=timezone.utc
-        startdt_utc = startdt.replace(tzinfo=utc)
-        enddt_utc = enddt.replace(tzinfo=utc)
+    if(duration.seconds<=10): #remove any really short events
+        continue
 
+    utc=timezone.utc
+    startdt_utc = startdt.replace(tzinfo=utc)
+    enddt_utc = enddt.replace(tzinfo=utc)
 
-        summary = component.get('summary')
-        description, project, billable = classify(summary)
+    accept = False
+    for attendee in event.attendees:
+        if(attendee.email == "morgan@allfed.info"):
+            if(attendee.partstat=="ACCEPTED" or attendee.partstat=="TENTATIVE"):
+                accept = True
+    if(not accept):
+        continue
 
-        if(project==""):
-            continue
-        task=" "
-        if(billable):
-            b_string = "true"
-        else:
-            b_string = "false"
+    summary = event.name
+    description, project, billable = classify(summary)
 
-        df_start_timestamp.append(startdt_utc.timestamp())
-        # print(df_start_time)
-        df_end_timestamp.append(enddt_utc.timestamp())
-        # print(df_start_timestamp)
-        df_start_time.append(startdt_utc.strftime('%Y-%m-%dT%T.000Z'))
-        df_end_time.append(enddt_utc.strftime('%Y-%m-%dT%T.000Z'))
+    task=" "
+    if(billable):
+        b_string = "true"
+    else:
+        b_string = "false"
 
-        df_project.append(project)
-        df_description.append(description)
-        df_billable.append(b_string)
+    df_start_timestamp.append(startdt_utc.timestamp())
+    # print(df_start_time)
+    df_end_timestamp.append(enddt_utc.timestamp())
+    # print(df_start_timestamp)
+    df_start_time.append(startdt_utc.strftime('%Y-%m-%dT%T.000Z'))
+    df_end_time.append(enddt_utc.strftime('%Y-%m-%dT%T.000Z'))
 
-        i=i+1
+    df_project.append(project)
+    df_description.append(description)
+    df_billable.append(b_string)
+
+    i=i+1
+
+    #create copy of calendar for ease of error checking
+    event = Event()
+    if(billable):
+        event.name = description+" "+project+" bill"
+    else:
+        event.name = description+" "+project+" no bill"
+
+    event.begin = arrow.get(startdt_utc)
+    event.end = arrow.get(enddt_utc)
+    new_calendar.events.add(event)
+
+with open('categorized.ics', 'w') as f:
+    # print(type(new_calendar))
+    f.write(str(new_calendar))
 print(i)
 g.close()
 df['Project'] = df_project

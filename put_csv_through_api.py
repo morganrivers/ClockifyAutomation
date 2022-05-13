@@ -9,9 +9,10 @@ print("please enter clockify API key")
 api_key = input()
 data = {'x-api-key': api_key}
 
-df = pd.read_csv('combined_output_raw.csv') # activitywatch
+df = pd.read_csv('data/manually_entered_march.csv')
+
 for index, row in df.iterrows():
-    time.sleep(3)
+    time.sleep(1)
     if(row["Billable"]):
         b = "true"
     else:
