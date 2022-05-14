@@ -9,10 +9,11 @@ print("please enter clockify API key")
 api_key = input()
 data = {'x-api-key': api_key}
 
-df = pd.read_csv('data/manually_entered_march.csv')
+df = pd.read_csv('data/chunks.csv')
 
 for index, row in df.iterrows():
     time.sleep(1)
+    # CHECK! if(row["Billable"]): # this might be correct?
     if(row["Billable"]):
         b = "true"
     else:

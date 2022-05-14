@@ -86,10 +86,14 @@ for i in range(0,int(np.floor(time_end-time_start)/blk)):
 
 print(df_new)
 
+df_chunks = df_new.sort_values(by='start_timestamp')
+df_chunks.reset_index(drop=True, inplace=True)
+df_chunks.to_csv("data/chunks.csv",index = False)
+
 #build up a new calendar ics reflecting 
 new_calendar = Calendar()
 
-for index, row in df_new.iterrows():
+for index, row in df_chunks.iterrows():
     project = row['Project']
     description = row['Description']
     billable = row['Billable']
