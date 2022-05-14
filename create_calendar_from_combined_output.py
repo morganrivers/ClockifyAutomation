@@ -6,7 +6,8 @@ import arrow
 from ics import Event, Calendar
 import copy
 
-df = pd.read_csv('combined_output_raw.csv')
+# df = pd.read_csv('combined_output_raw.csv')
+df = pd.read_csv('data/calendar_output_raw.csv')
 
 df_sorted = df.sort_values(by='start_timestamp')
 df_sorted.reset_index(drop=True, inplace=True)
@@ -26,8 +27,8 @@ while i < len(df_sorted)-2:
         i=i-1
         continue
 
-print("df<60")
-print(df)
+# print("df<60")
+# print(df)
 
 #second pass: get rid of simultaneous starts
 i = 0
@@ -38,15 +39,22 @@ while i < len(df_sorted)-2:
 
     dur_1 = row["end_timestamp"] - row["start_timestamp"]
     dur_2 = next_row["end_timestamp"] - next_row["start_timestamp"]
-    t_diff=next_row["start_timestamp"]-row["end_timestamp"] # space between events
 
     #if start simultaneously
     if(int(row["start_timestamp"]) == int(next_row["start_timestamp"])):
+        print("")
+        print("i")
+        print(i)
+        print("duration long")
+        print(dur_2)
+        print("duration short")
+        print(dur_1)
 
         #delete the shorter event
         if(dur_2 > dur_1):
             df_sorted.loc[i,"Description"] = next_row["Description"]
             df_sorted.loc[i,"end_timestamp"] = next_row["end_timestamp"]
+            df_sorted.loc[i,"start_timestamp"] = next_row["start_timestamp"]
             print("deleting simultaneously current")
             df_sorted.drop(axis=0,index=i, inplace=True)  # delete this event
         else:
@@ -54,27 +62,29 @@ while i < len(df_sorted)-2:
             df_sorted.drop(axis=0,index=i+1, inplace=True)  # delete next event
         df_sorted.reset_index(drop=True, inplace=True)
         i=i-1
-        continue
-        print("deleted")
+        # continue
+        # print("deleted")
+
 
 i = 0
-while i < len(df_sorted)-3:
+while i < len(df_sorted)-2:
     i = i + 1
     row = df_sorted.iloc[i]
+    print("ROWSTART"+row["Start Time"])
     next_row = df_sorted.iloc[i+1]
-    next_next_row = df_sorted.iloc[i+2]
+    # next_next_row = df_sorted.iloc[i+2]
 
     dur_1 = row["end_timestamp"] - row["start_timestamp"]
     dur_2 = next_row["end_timestamp"] - next_row["start_timestamp"]
-    dur_3 = next_row["end_timestamp"] - next_next_row["start_timestamp"]
+    # dur_3 = next_row["end_timestamp"] - next_next_row["start_timestamp"]
     t_diff=next_row["start_timestamp"]-row["end_timestamp"] # space between events
-    t_diff2=next_next_row["start_timestamp"]-row["end_timestamp"] # space between events
+    # t_diff2=next_next_row["start_timestamp"]-row["end_timestamp"] # space between events
 
-    print(i)
+    # print(i)
     if(row['Description']==next_row['Description']):
-        print(row['Description'])
+        # print(row['Description'])
 
-        # print(t_diff)
+        # # print(t_diff)
         assert(t_diff >= 0)
 
         if(t_diff < 600): # if identical event within 10 minutes
@@ -106,47 +116,100 @@ while i < len(df_sorted)-3:
             i = i - 1 # retest this index again with the next event
             continue
 
-while i < len(df_sorted)-3:
-    i = i + 1
-    row = df_sorted.iloc[i]
-    next_row = df_sorted.iloc[i+1]
-    next_next_row = df_sorted.iloc[i+2]
 
-    dur_1 = row["end_timestamp"] - row["start_timestamp"]
-    dur_2 = next_row["end_timestamp"] - next_row["start_timestamp"]
-    dur_3 = next_row["end_timestamp"] - next_next_row["start_timestamp"]
-    t_diff=next_row["start_timestamp"]-row["end_timestamp"] # space between events
-    t_diff2=next_next_row["start_timestamp"]-row["end_timestamp"] # space between events
+# i = 0
+# while i < len(df_sorted)-3:
+#     i = i + 1
+#     row = df_sorted.iloc[i]
+#     next_row = df_sorted.iloc[i+1]
+#     next_next_row = df_sorted.iloc[i+2]
 
-    print(i)
-    if(row['Description']==next_row['Description']):
-        print(row['Description'])
+#     dur_1 = row["end_timestamp"] - row["start_timestamp"]
+#     dur_2 = next_row["end_timestamp"] - next_row["start_timestamp"]
+#     dur_3 = next_row["end_timestamp"] - next_next_row["start_timestamp"]
+#     t_diff=next_row["start_timestamp"]-row["end_timestamp"] # space between events
+#     t_diff2=next_next_row["start_timestamp"]-row["end_timestamp"] # space between events
 
-        # print(t_diff)
-        assert(t_diff >= 0)
+#     print(i)
+#     if(row['Description']==next_row['Description']):
+#         print(row['Description'])
 
-        if(t_diff < 600): # if identical event within 10 minutes
-            print("t_diff")
-            print(t_diff)
+#         # print(t_diff)
+#         assert(t_diff >= 0)
 
-            print("duration")
-            print("dur1")
-            print(dur_1)
-            print("dur_2")
-            print(dur_2)
-            print("")
-            df_sorted.loc[i,"end_timestamp"] = next_row["end_timestamp"]
-            df_sorted.drop(axis=0,index=i+1, inplace=True)  # delete next event
-            print("deleting short time between next")
-            print("next_row[Description")
-            print(next_row["Description"])
-            df_sorted.reset_index(drop=True, inplace=True)
-            i = i - 1 # retest this index again with the next event
-            continue
+#         if(t_diff < 600): # if identical event within 10 minutes
+#             print("t_diff")
+#             print(t_diff)
+
+#             print("duration")
+#             print("dur1")
+#             print(dur_1)
+#             print("dur_2")
+#             print(dur_2)
+#             print("")
+#             df_sorted.loc[i,"end_timestamp"] = next_row["end_timestamp"]
+#             df_sorted.drop(axis=0,index=i+1, inplace=True)  # delete next event
+#             print("deleting short time between next")
+#             print("next_row[Description")
+#             print(next_row["Description"])
+#             df_sorted.reset_index(drop=True, inplace=True)
+#             i = i - 1 # retest this index again with the next event
+#             continue
+
+#     #useful for deleting short interruptions in largely a certain project
+#     if(row['Description']==next_next_row['Description']):
+#         if(t_diff2 < 600):
+#             df_sorted.loc[i,"end_timestamp"] = next_next_row["end_timestamp"]
+#             df_sorted.drop(axis=0,index=i+1, inplace=True)  # delete sandwiched event
+#             df_sorted.drop(axis=0,index=i+2, inplace=True)  # delete nextnext event
+#             df_sorted.reset_index(drop=True, inplace=True)
+#             i = i - 1 # retest this index again with the next event
+#             continue
+
+# while i < len(df_sorted)-3:
+#     i = i + 1
+#     row = df_sorted.iloc[i]
+#     next_row = df_sorted.iloc[i+1]
+#     next_next_row = df_sorted.iloc[i+2]
+
+#     dur_1 = row["end_timestamp"] - row["start_timestamp"]
+#     dur_2 = next_row["end_timestamp"] - next_row["start_timestamp"]
+#     dur_3 = next_row["end_timestamp"] - next_next_row["start_timestamp"]
+#     t_diff=next_row["start_timestamp"]-row["end_timestamp"] # space between events
+#     t_diff2=next_next_row["start_timestamp"]-row["end_timestamp"] # space between events
+
+#     print(i)
+#     if(row['Description']==next_row['Description']):
+#         print(row['Description'])
+
+#         # print(t_diff)
+#         assert(t_diff >= 0)
+
+#         if(t_diff < 600): # if identical event within 10 minutes
+#             print("t_diff")
+#             print(t_diff)
+
+#             print("duration")
+#             print("dur1")
+#             print(dur_1)
+#             print("dur_2")
+#             print(dur_2)
+#             print("")
+#             df_sorted.loc[i,"end_timestamp"] = next_row["end_timestamp"]
+#             df_sorted.drop(axis=0,index=i+1, inplace=True)  # delete next event
+#             print("deleting short time between next")
+#             print("next_row[Description")
+#             print(next_row["Description"])
+#             df_sorted.reset_index(drop=True, inplace=True)
+#             i = i - 1 # retest this index again with the next event
+#             continue
 
 
 print(df)
 print(df_sorted)
+
+df_sorted.to_csv("combined_output_for_api.csv", index=False)
+
 
 #build up a new calendar ics reflecting 
 new_calendar = Calendar()

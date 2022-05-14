@@ -1,66 +1,202 @@
+from ics import Event, Calendar
+import arrow
+import datetime
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import pandas as pd
+
 # Read CSV file into DataFrame df
 df_aw = pd.read_csv('data/activitywatch_output_raw.csv') # activitywatch
 df_gcal = pd.read_csv('data/calendar_output_raw.csv') # google calendar
 
 #loop through each item in activitywatch. if it falls within a calendar output timeslot, then remove it.
 
-combined_df=pd.DataFrame()
+combined_df = pd.concat([df_gcal, df_aw], axis=0, ignore_index=True)
+df_sorted = combined_df.sort_values(by='start_timestamp')
+df_sorted.reset_index(drop=True, inplace=True)
 
-for index, row_aw in df_aw.iterrows():
+#delete zero length events
+i=0
+while i < len(df_sorted)-1:
+    i = i + 1
+    row = df_sorted.iloc[i]
+    if(row["start_timestamp"]>=row["end_timestamp"]):
+        # print("")
+        # print(row)
+        df_sorted.drop(axis=0,index=i, inplace=True)  # delete this event
+        df_sorted.reset_index(drop=True, inplace=True)
 
-    collides = False
+# Example:
+#   [     ] <--- row1
+#   [   ]   <--- row2
+# result:
+#   [     ] <--- row1
+# Example:
+#   [     ] <--- row1
+#     [ ]   <--- row2
+# result:
+#   [     ] <--- row1
+# Example:
+#   [     ] <--- row1
+#   [     ] <--- row2
+# result:
+#   [     ] <--- row1
+#collision detect sandwiched or equivalent calendar events, but only if they don't collide with any other calendar event
+index1=0
+while index1 < len(df_sorted)-2:
+    index1 = index1 + 1
+    row1 = df_sorted.iloc[index1]
+    index2 = index1 + 1
+    row2 = df_sorted.iloc[index2]
 
-    for index, row_gcal in df_gcal.iterrows():
+    #sandwich condition, equivalence condition
+    if(((row1["start_timestamp"] <= row2["start_timestamp"] <= row1["end_timestamp"])
+       and (row1["start_timestamp"] <= row2["end_timestamp"] <= row1["end_timestamp"]))
+       or (row1["start_timestamp"] == row2["start_timestamp"]
+           and row1["end_timestamp"] == row2["end_timestamp"])):
 
-        # collision detection
-        if(row_gcal["start_timestamp"] <= row_aw["start_timestamp"] <= row_gcal["end_timestamp"]
-           or row_gcal["start_timestamp"] <= row_aw["end_timestamp"] <= row_gcal["end_timestamp"]):
-            collides = True
+        df_sorted.drop(axis=0,index=index2, inplace=True)  # delete this event
+        df_sorted.reset_index(drop=True, inplace=True)
+        index1 = index1 - 1
 
-    if(not collides):
-        # combined_df.append(row_aw)
-        new_df = pd.DataFrame([row_aw])
-        combined_df = pd.concat([combined_df, new_df], axis=0, ignore_index=True)
+        # print("")
+        # print("sandwiched or eq")
+        # print(row1)
+        # print(row2)
 
-#collision detect calendar events, but only if they don't collide with any other calendar event
-removed_indices = []
-kept_indices = []
-for index1, row_gcal1 in df_gcal.iterrows():
 
-    if(index1 in removed_indices):
+index1=0
+# collision detect imperfectly overlapping events, and alter their endpoint to match the collider (first one to happen gets priority)
+while index1 < len(df_sorted)-2:
+    index1 = index1 + 1
+    row1 = df_sorted.iloc[index1]
+    index2 = index1 + 1
+    row2 = df_sorted.iloc[index2]
+
+    # Example:
+    # [     ]    <--- row1
+    #      [  ]  <--- row2
+    # result:
+    # [     ]    <--- row1
+    #       [ ]  <--- row2
+    # overlaps at start of second item
+    if(row1["start_timestamp"] < row2["start_timestamp"] < row1["end_timestamp"]):
+
+        # print()
+        # print("edge mismatch right")
+        # print(row1)
+        # print(row2)
+        #assign start of 2 to end of 1
+        df_sorted.loc[index2, "start_timestamp"] = row1["end_timestamp"]
+        df_sorted.loc[index2, "Start Time"] = row1["End Time"]
+
+        assert(not (row1["start_timestamp"] < row2["end_timestamp"] < row1["end_timestamp"]))# no sandwiches!
+
         continue
 
-    for index2, row_gcal2 in df_gcal.iterrows():
-        if(index1==index2):  # if collision is not with self
-            continue
-        # if(index1 == 31 and index2 == 35):
-        #     print(row_gcal1["Description"])
-        #     print(row_gcal1["Start Date"])
-        #     print(row_gcal1["Start Time"])
-        #     print(row_gcal1["start_timestamp"])
-        #     print(row_gcal2["Description"])
-        #     print(row_gcal2["Start Date"])
-        #     print(row_gcal2["Start Time"])
-        #     print(row_gcal2["start_timestamp"])
-        #     print(row_gcal1["end_timestamp"]-row_gcal2["end_timestamp"])
-        #     print(row_gcal1["start_timestamp"]-row_gcal2["start_timestamp"])
-        #     quit()
-        if(row_gcal1["start_timestamp"] < row_gcal2["start_timestamp"] < row_gcal1["end_timestamp"]
-           or row_gcal1["start_timestamp"] < row_gcal2["end_timestamp"] < row_gcal1["end_timestamp"]
-           or (row_gcal1["start_timestamp"] == row_gcal2["start_timestamp"]
-               and row_gcal1["end_timestamp"] == row_gcal2["end_timestamp"])):
+    # Example:
+    #    [     ]  <--- row1
+    #  [   ]      <--- row2
+    # result:
+    #    [     ]  <--- row1
+    #  [ ]        <--- row2
+    # overlaps at end of second item
+    if(row1["start_timestamp"] < row2["end_timestamp"] < row1["end_timestamp"]):
+        assert(not (row1["start_timestamp"] < row2["start_timestamp"] < row1["end_timestamp"])) # no sandwiches!
 
-            removed_indices.append(index2) # we need to not add the offending event
+        df_sorted.loc[index2,"end_timestamp"] = row1["start_timestamp"]
+        df_sorted.loc[index2,"End Time"] = row1["Start Time"]
+        # print("edge mismatch left")
+        # print(row1)
+        # print(row2)
+        continue
 
+df_sorted.to_csv("combined_before_merge.csv",index = False)
+df_sorted.drop(axis=0,index=index2, inplace=True)  # delete this event
+df_sorted.reset_index(drop=True, inplace=True)
 
-for index, row_gcal in df_gcal.iterrows():
-    if(index not in removed_indices):
-        new_df = pd.DataFrame([row_gcal])
-        combined_df = pd.concat([combined_df, new_df], axis=0, ignore_index=True)
+# i = 0
+# while i < len(df_sorted)-2:
+#     i = i + 1
+#     row = df_sorted.iloc[i]
+#     if(row["start_timestamp"]>1649806275 and row["start_timestamp"]<1649815446):
+#         print("ROW start:"+row["Start Time"])
+#     next_row = df_sorted.iloc[i+1]
 
-combined_df.to_csv("combined_output_raw.csv",index = False)
+#     dur_1 = row["end_timestamp"] - row["start_timestamp"]
+#     dur_2 = next_row["end_timestamp"] - next_row["start_timestamp"]
+#     t_diff = next_row["start_timestamp"]-row["end_timestamp"] # space between events
 
-print(combined_df)
+#     if(row['Description']==next_row['Description']):
+#         assert(t_diff >= 0)
+#         # if(row["start_timestamp"]>1649806275 and row["start_timestamp"]<1649817834):
+#         if(row["start_timestamp"]>1649806275 and row["start_timestamp"]<1649815446):
+#             print("Description match between:")
+#             print(row["Description"])
+#             print("t_diff"+str(t_diff))
+#             if("2022-04-13T00:34" in row["End Time"]):
+#                 print("2022-04-13T00:34 in row[End Time")
+#                 print("Row")
+#                 print(row)
+#                 print("next Row")
+#                 print(next_row)
+#             if("ime2022-04-13T00:45" in row["End Time"]):
+#                 print("ime2022-04-13T00:45 in row[End Time")
+#                 print(row)
+#                 print(next_row)
+
+#             print("row start time"+str(row["Start Time"]))
+#             print("row end time"+str(row["End Time"]))
+
+#             print("and:")
+#             print("next row end time"+str(next_row["End Time"]))
+#             print("")
+
+#         if(t_diff < 600): # if identical event within 20 minutes
+#             # if(row["start_timestamp"]>1649806275 and row["start_timestamp"]<1649894400):
+#             # if(row["start_timestamp"]>1649806275 and row["start_timestamp"]<1649817834):
+#             if(row["start_timestamp"]>1649806275 and row["start_timestamp"]<1649815446):
+#                 print("tdiff<600,row and next row")
+#                 print("start"+str(row["Start Time"]))
+#                 print("end row"+str(row["End Time"]))
+#                 print("end next row"+str(next_row["End Time"]))
+#             df_sorted.loc[i,"end_timestamp"] = next_row["end_timestamp"]
+#             df_sorted.loc[i,"End Time"] = next_row["End Time"]
+#             df_sorted.drop(axis=0,index=i+1, inplace=True)  # delete next event
+#             df_sorted.reset_index(drop=True, inplace=True)
+#             # if(row["start_timestamp"]>1649806275 and row["start_timestamp"]<1649894400):
+#             if(row["start_timestamp"]>1649806275 and row["start_timestamp"]<1649815446):
+#                 print(" result:")
+#                 # print(df_sorted.iloc[i])
+#                 # print(df_sorted.loc[i,"End Time"])
+#                 print("res endtime"+df_sorted.iloc[i]["End Time"])
+#                 print("")
+#             i = i - 2 # retest this index again with the next event
+#             continue
+
+df_sorted.to_csv("combined_output_raw.csv",index = False)
+
+# print(df_sorted)
+#build up a new calendar ics 
+new_calendar = Calendar()
+
+for index, row in df_sorted.iterrows():
+    project = row['Project']
+    description = row['Description']
+    billable = row['Billable']
+    start_timestamp = row['start_timestamp']
+    end_timestamp = row['end_timestamp']
+    #create copy of calendar for ease of error checking
+    event = Event()
+    if(billable):
+        event.name = description+" "+project+" bill"
+    else:
+        event.name = description+" "+project+" no bill"
+
+    event.begin = arrow.get(datetime.datetime.fromtimestamp(int(start_timestamp)))
+    event.end = arrow.get(datetime.datetime.fromtimestamp(int(end_timestamp)))
+    new_calendar.events.add(event)
+
+with open('after_merge.ics', 'w') as f: #giving up on merge...
+    f.write(str(new_calendar))
+

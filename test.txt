@@ -1,0 +1,249 @@
+ROW start:2022-04-13T00:30:07.000Z
+Description match between:
+google sheets or google drive
+t_diff32.0
+row start time2022-04-13T00:30:07.000Z
+row end time2022-04-13T00:30:45.000Z
+and:
+next row end time2022-04-13T00:31:28.000Z
+
+tdiff<600,row and next row
+start2022-04-13T00:30:07.000Z
+end row2022-04-13T00:30:45.000Z
+end next row2022-04-13T00:31:28.000Z
+ result:
+res endtime2022-04-13T00:31:28.000Z
+
+ROW start:2022-04-13T00:30:07.000Z
+Description match between:
+google sheets or google drive
+t_diff6.0
+row start time2022-04-13T00:30:07.000Z
+row end time2022-04-13T00:31:28.000Z
+and:
+next row end time2022-04-13T00:32:39.000Z
+
+tdiff<600,row and next row
+start2022-04-13T00:30:07.000Z
+end row2022-04-13T00:31:28.000Z
+end next row2022-04-13T00:32:39.000Z
+ result:
+res endtime2022-04-13T00:32:39.000Z
+
+ROW start:2022-04-13T00:30:07.000Z
+Description match between:
+google sheets or google drive
+t_diff12.0
+row start time2022-04-13T00:30:07.000Z
+row end time2022-04-13T00:32:39.000Z
+and:
+next row end time2022-04-13T00:33:47.000Z
+
+tdiff<600,row and next row
+start2022-04-13T00:30:07.000Z
+end row2022-04-13T00:32:39.000Z
+end next row2022-04-13T00:33:47.000Z
+ result:
+res endtime2022-04-13T00:33:47.000Z
+
+ROW start:2022-04-13T00:30:07.000Z
+Description match between:
+google sheets or google drive
+t_diff5.0
+row start time2022-04-13T00:30:07.000Z
+row end time2022-04-13T00:33:47.000Z
+and:
+next row end time2022-04-13T00:34:04.000Z
+
+tdiff<600,row and next row
+start2022-04-13T00:30:07.000Z
+end row2022-04-13T00:33:47.000Z
+end next row2022-04-13T00:34:04.000Z
+ result:
+res endtime2022-04-13T00:34:04.000Z
+
+ROW start:2022-04-13T00:30:07.000Z
+Description match between:
+google sheets or google drive
+t_diff2.0
+2022-04-13T00:34 in row[End Time
+Row
+Project                 5e56de580121f031bdc3afac
+Description        google sheets or google drive
+Billable                                    True
+Start Time              2022-04-13T00:30:07.000Z
+End Time                2022-04-13T00:34:04.000Z
+start_timestamp                     1649809807.0
+end_timestamp                       1649810044.0
+Name: 175, dtype: object
+next Row
+Project                 5e56de580121f031bdc3afac
+Description        google sheets or google drive
+Billable                                    True
+Start Time              2022-04-13T00:34:06.000Z
+End Time                2022-04-13T00:45:01.000Z
+start_timestamp                     1649810046.0
+end_timestamp                       1649810701.0
+Name: 176, dtype: object
+row start time2022-04-13T00:30:07.000Z
+row end time2022-04-13T00:34:04.000Z
+and:
+next row end time2022-04-13T00:45:01.000Z
+
+tdiff<600,row and next row
+start2022-04-13T00:30:07.000Z
+end row2022-04-13T00:34:04.000Z
+end next row2022-04-13T00:45:01.000Z
+ result:
+res endtime2022-04-13T00:45:01.000Z
+
+ROW start:2022-04-13T00:30:07.000Z
+ROW start:2022-04-13T00:45:05.000Z
+ROW start:2022-04-13T00:45:17.000Z
+Description match between:
+google sheets or google drive
+t_diff15.0
+row start time2022-04-13T00:45:17.000Z
+row end time2022-04-13T00:47:14.000Z
+and:
+next row end time2022-04-13T00:48:32.000Z
+
+tdiff<600,row and next row
+start2022-04-13T00:45:17.000Z
+end row2022-04-13T00:47:14.000Z
+end next row2022-04-13T00:48:32.000Z
+ result:
+res endtime2022-04-13T00:48:32.000Z
+
+ROW start:2022-04-13T00:45:05.000Z
+ROW start:2022-04-13T00:45:17.000Z
+Description match between:
+google sheets or google drive
+t_diff3.0
+row start time2022-04-13T00:45:17.000Z
+row end time2022-04-13T00:48:32.000Z
+and:
+next row end time2022-04-13T00:50:05.000Z
+
+tdiff<600,row and next row
+start2022-04-13T00:45:17.000Z
+end row2022-04-13T00:48:32.000Z
+end next row2022-04-13T00:50:05.000Z
+ result:
+res endtime2022-04-13T00:50:05.000Z
+
+ROW start:2022-04-13T00:45:05.000Z
+ROW start:2022-04-13T00:45:17.000Z
+Description match between:
+google sheets or google drive
+t_diff7.0
+row start time2022-04-13T00:45:17.000Z
+row end time2022-04-13T00:50:05.000Z
+and:
+next row end time2022-04-13T00:53:18.000Z
+
+tdiff<600,row and next row
+start2022-04-13T00:45:17.000Z
+end row2022-04-13T00:50:05.000Z
+end next row2022-04-13T00:53:18.000Z
+ result:
+res endtime2022-04-13T00:53:18.000Z
+
+ROW start:2022-04-13T00:45:05.000Z
+ROW start:2022-04-13T00:45:17.000Z
+Description match between:
+google sheets or google drive
+t_diff4.0
+row start time2022-04-13T00:45:17.000Z
+row end time2022-04-13T00:53:18.000Z
+and:
+next row end time2022-04-13T00:58:18.000Z
+
+tdiff<600,row and next row
+start2022-04-13T00:45:17.000Z
+end row2022-04-13T00:53:18.000Z
+end next row2022-04-13T00:58:18.000Z
+ result:
+res endtime2022-04-13T00:58:18.000Z
+
+ROW start:2022-04-13T00:45:05.000Z
+ROW start:2022-04-13T00:45:17.000Z
+Description match between:
+google sheets or google drive
+t_diff11.0
+row start time2022-04-13T00:45:17.000Z
+row end time2022-04-13T00:58:18.000Z
+and:
+next row end time2022-04-13T00:59:21.000Z
+
+tdiff<600,row and next row
+start2022-04-13T00:45:17.000Z
+end row2022-04-13T00:58:18.000Z
+end next row2022-04-13T00:59:21.000Z
+ result:
+res endtime2022-04-13T00:59:21.000Z
+
+ROW start:2022-04-13T00:45:05.000Z
+ROW start:2022-04-13T00:45:17.000Z
+ROW start:2022-04-13T01:02:19.000Z
+Description match between:
+digital resilience project
+t_diff3375.0
+row start time2022-04-13T01:02:19.000Z
+row end time2022-04-13T01:02:32.000Z
+and:
+next row end time2022-04-13T01:58:49.000Z
+
+ROW start:2022-04-13T01:58:47.000Z
+ROW start:2022-04-13T01:59:07.000Z
+Description match between:
+Emailing and checking email
+t_diff13.0
+row start time2022-04-13T01:59:07.000Z
+row end time2022-04-13T02:00:04.000Z
+and:
+next row end time2022-04-13T02:02:02.000Z
+
+tdiff<600,row and next row
+start2022-04-13T01:59:07.000Z
+end row2022-04-13T02:00:04.000Z
+end next row2022-04-13T02:02:02.000Z
+ result:
+res endtime2022-04-13T02:02:02.000Z
+
+ROW start:2022-04-13T01:58:47.000Z
+ROW start:2022-04-13T01:59:07.000Z
+Description match between:
+Emailing and checking email
+t_diff38.0
+row start time2022-04-13T01:59:07.000Z
+row end time2022-04-13T02:02:02.000Z
+and:
+next row end time2022-04-13T02:04:04.000Z
+
+tdiff<600,row and next row
+start2022-04-13T01:59:07.000Z
+end row2022-04-13T02:02:02.000Z
+end next row2022-04-13T02:04:04.000Z
+ result:
+res endtime2022-04-13T02:04:04.000Z
+
+ROW start:2022-04-13T01:58:47.000Z
+ROW start:2022-04-13T01:59:07.000Z
+Description match between:
+Emailing and checking email
+t_diff2.0
+row start time2022-04-13T01:59:07.000Z
+row end time2022-04-13T02:04:04.000Z
+and:
+next row end time2022-04-13T02:08:55.000Z
+
+tdiff<600,row and next row
+start2022-04-13T01:59:07.000Z
+end row2022-04-13T02:04:04.000Z
+end next row2022-04-13T02:08:55.000Z
+ result:
+res endtime2022-04-13T02:08:55.000Z
+
+ROW start:2022-04-13T01:58:47.000Z
+ROW start:2022-04-13T01:59:07.000Z

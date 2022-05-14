@@ -8,7 +8,7 @@ import arrow
 
 SAVE_LOCATION = 'out.ics'
 CSV_FILE_LOCATION = 'calendar_output_raw.csv'
-HOURS_OFF_UTC = -7
+HOURS_OFF_UTC = 4
 YOUR_EMAIL="morgan@allfed.info"
 MONTH_OF_INTEREST = 4
 YEAR = 2022
@@ -111,6 +111,7 @@ for event in cal.events:
     utc=timezone.utc
     startdt_utc = startdt.replace(tzinfo=utc)
     enddt_utc = enddt.replace(tzinfo=utc)
+
 
     accept = False
     for attendee in event.attendees:

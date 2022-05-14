@@ -13,7 +13,7 @@ import aw_query
 
 MONTH_OF_INTEREST = 4
 YEAR = 2022
-HOURS_OFF_UTC = -7
+HOURS_OFF_UTC = 4
 
 client = ActivityWatchClient("test-client", testing=False)
 
