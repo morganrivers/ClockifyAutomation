@@ -6,8 +6,8 @@ from dateutil import tz
 import pytz
 import arrow
 
-SAVE_LOCATION = 'out.ics'
-CSV_FILE_LOCATION = 'calendar_output_raw.csv'
+SAVE_LOCATION = 'data/out.ics'
+CSV_FILE_LOCATION = 'data/calendar_output_raw.csv'
 HOURS_OFF_UTC = 4
 YOUR_EMAIL="morgan@allfed.info"
 MONTH_OF_INTEREST = 4
@@ -154,7 +154,7 @@ for event in cal.events:
     event.end = arrow.get(enddt_utc)
     new_calendar.events.add(event)
 
-with open('categorized.ics', 'w') as f:
+with open('data/categorized.ics', 'w') as f:
     # print(type(new_calendar))
     f.write(str(new_calendar))
 print(i)

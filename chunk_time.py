@@ -7,7 +7,7 @@ import arrow
 from ics import Event, Calendar
 import copy
 import numpy as np
-df = pd.read_csv('combined_output_raw.csv')
+df = pd.read_csv('data/combined_output_raw.csv')
 
 df_sorted = df.sort_values(by='start_timestamp')
 df_sorted.reset_index(drop=True, inplace=True)
@@ -110,5 +110,5 @@ for index, row in df_chunks.iterrows():
     event.end = arrow.get(datetime.datetime.fromtimestamp(int(end_timestamp)))
     new_calendar.events.add(event)
 
-with open('chunks.ics', 'w') as f:
+with open('data/chunks.ics', 'w') as f:
     f.write(str(new_calendar))

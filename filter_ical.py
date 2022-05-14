@@ -60,7 +60,7 @@ def main():
             else:
                 outcal.add_component(item)
 
-        with open('out.ics', 'wb') as outf:
+        with open('data/out.ics', 'wb') as outf:
             outf.write(outcal.to_ical(sorted=False))
 
 main()

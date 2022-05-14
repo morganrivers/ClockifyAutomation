@@ -111,7 +111,7 @@ while index1 < len(df_sorted)-2:
         # print(row2)
         continue
 
-df_sorted.to_csv("combined_before_merge.csv",index = False)
+df_sorted.to_csv("data/combined_before_merge.csv",index = False)
 df_sorted.drop(axis=0,index=index2, inplace=True)  # delete this event
 df_sorted.reset_index(drop=True, inplace=True)
 
@@ -174,7 +174,7 @@ df_sorted.reset_index(drop=True, inplace=True)
 #             i = i - 2 # retest this index again with the next event
 #             continue
 
-df_sorted.to_csv("combined_output_raw.csv",index = False)
+df_sorted.to_csv("data/combined_output_raw.csv",index = False)
 
 # print(df_sorted)
 #build up a new calendar ics 
@@ -197,6 +197,6 @@ for index, row in df_sorted.iterrows():
     event.end = arrow.get(datetime.datetime.fromtimestamp(int(end_timestamp)))
     new_calendar.events.add(event)
 
-with open('after_merge.ics', 'w') as f: #giving up on merge...
+with open('data/after_merge.ics', 'w') as f: #giving up on merge...
     f.write(str(new_calendar))
 
