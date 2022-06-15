@@ -14,7 +14,7 @@ def main():
     INPUT_COMBINED_LOCATION = '../data/combined_events.csv'
     OUTPUT_CHUNKED_EVENTS_CSV_LOCATION = "../data/chunked_events.csv"
     OUTPUT_CHUNKED_EVENTS_ICS_LOCATION = "../data/chunked_events.ics"
-    JSON_PARAMETERS_LOCATION = '../params.json'
+    JSON_PARAMETERS_LOCATION = '../data/params.json'
 
     params = json.load(open(JSON_PARAMETERS_LOCATION, 'r'))
 

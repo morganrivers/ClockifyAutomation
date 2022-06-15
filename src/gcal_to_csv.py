@@ -16,7 +16,7 @@ def main():
     CALENDAR_EVENTS_OUTPUT_CSV_LOCATION = '../data/calendar_output_raw.csv'
     CALENDAR_EVENTS_OUTPUT_ICS_LOCATION = '../data/calendar_output_raw.ics'
     JSON_CATEGORIES_LOCATION = '../data/gcal_categories.json'
-    JSON_PARAMETERS_LOCATION = '../params.json'
+    JSON_PARAMETERS_LOCATION = '../data/params.json'
 
     params = json.load(open(JSON_PARAMETERS_LOCATION, 'r'))
     data = json.load(open(JSON_CATEGORIES_LOCATION, 'r'))
@@ -36,11 +36,17 @@ def main():
         slow = summary.lower()
         cats = dict(dict(data.items())["categories"].items())
         for k, i in cats.items():
-            if(slow in k):
+            if((slow in k.lower()) or (k.lower() in slow)):
                 description = i["description"]
                 project = i["project"]
                 billable = i["billable"]
                 return (description, project, billable)
+
+        print('unmatched calendar item')
+        print(summary)
+        print("")
+
+        # none of the summary matched the categories
         default = dict(dict(data.items())["default"].items())
         return (default["description"], default["project"], default["billable"])
 

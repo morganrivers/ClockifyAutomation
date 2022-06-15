@@ -1,0 +1,16 @@
+{
+"default" : {
+    "description":"Regularly Scheduled Research Call",
+    "project":"stringofhexadecimalcharactersandnumbers", 
+    "billable":"True"},
+"categories" : {
+    "example1":{
+        "description":"Research Call 1",
+        "project":"differentstringofhexadecimalcharactersandnumbers",
+        "billable":"True"},
+    "example2":{
+        "description":"Research Call 2",
+        "project":"differentstringofhexadecimalcharactersandnumbers", 
+        "billable":"True"}
+    }
+}

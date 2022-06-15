@@ -1,0 +1,15 @@
+{
+    "invoice_number":"16",
+    "hourly_rate":"8961187000000",//https://www.grunge.com/165794/how-much-money-does-jeff-bezos-make-per-hour/
+    "total_hours":"10",
+    "month_for_invoice":"May",
+    "current_month":"June",
+    "current_day":"15",
+    "current_year":"2022",
+    "due_month":"June",
+    "due_day":"15",
+    "due_year":"2022",
+    "payment_method":"Please direct payment to:<br />ABC Credit Union<br />John Smith<br />Account #: 0123456789<br />Routing #: 9876543210",
+    "bill_to_address":"Centre for Applied Eschatology<br />www.appliedeschatology.com",
+    "ship_to_address":"John Smith<br />123 Main Street<br />Springfield, KA 12345"
+}

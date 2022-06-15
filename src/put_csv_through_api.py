@@ -4,22 +4,25 @@ import pandas as pd
 import time
 
 def main():
-    JSON_PARAMETERS_LOCATION = '../params.json'
+    JSON_PARAMETERS_LOCATION = '../data/params.json'
     params = json.load(open(JSON_PARAMETERS_LOCATION, 'r'))
 
-    CHUNKS_INPUT_CSV_LOCATION = '../data/chunked_events.csv'
+    CHUNKS_INPUT_CSV_LOCATION = '../data/calendar_output_raw.csv'
 
     workspaceid = dict(params.items())["clockify_workspace_id"]
 
-    # workspaceid="62574afc85712a3bddd78faf" # test
+    # workspaceid = "62574afc85712a3bddd78faf" # test
     print("please enter clockify API key")
     api_key = input()
     data = {'x-api-key': api_key}
 
     df = pd.read_csv(CHUNKS_INPUT_CSV_LOCATION)
 
-    for index, row in df.iterrows():
+    index = 0
+    while index < len(df):
+        row = df.iloc[index]
         time.sleep(1)
+
         # CHECK! if(row["Billable"]): # this might be correct?
         if(row["Billable"]):
             b = "true"
@@ -42,8 +45,19 @@ def main():
 
         print(r)
 
+
         if(r.status_code != 201):
-            quit()
+            if(r.status_code == 404):
+                print("")
+                print("Trying again, in case network is bad.")
+                continue
+            elif(r.status_code == 400):
+                print("")
+                print("Probably a mistake in the values if entered manually")
+                print("Otherwise, check workspace/user id.")
+                quit()
+
+        index += 1
 
         print("")
         print("")
