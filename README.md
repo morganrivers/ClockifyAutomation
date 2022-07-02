@@ -1,7 +1,6 @@
 Edits:
-missing green gang call
-incorrect discussion filter
-timezone off by 3
+seemingly missing green gang call on 6/6 in gcal_shortened, probably a repeating call problem
+timezone off for integrated model call
 add in hours from phone
 
 
@@ -46,7 +45,7 @@ Categorizing page:
 
 Calendar page
         Shows chunked results in gcal format for each week. window Title and project shown.
-
+        https://github.com/ArrobeFr/jquery-calendar-bs4
 Invoice page:
         forms for all the invoice parameters.
         click button generate invoice as pdf. Text boxes allow you to fill in and save your details.
