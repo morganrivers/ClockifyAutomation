@@ -69,8 +69,14 @@ def main():
     new_calendar = Calendar()
 
     for event in cal.events:
+
         start = event.begin.datetime
         end = event.end.datetime
+        if("gang" in event.name.lower()):
+            print("")
+            print("gang")
+            print(start)
+            print("")
         if(start is None):
             continue
         if(end is None):
@@ -105,11 +111,19 @@ def main():
                 if(attendee.partstat == "ACCEPTED"
                    or attendee.partstat == "TENTATIVE"):
                     accept = True
+        # print(startdt_utc)
+        if(startdt_utc.strftime('%d')=="06" or startdt_utc.strftime('%d')=="07"):
+            print(startdt_utc)
+            print("accept")
+            print(accept)
+            print(event.name)
         if(not accept):
             continue
 
         summary = event.name
+        # print(summary)
         description, project, billable = classify(summary)
+        # quit()
 
         if(billable):
             b_string = "true"

@@ -1,3 +1,59 @@
+Edits:
+missing green gang call
+incorrect discussion filter
+timezone off by 3
+add in hours from phone
+
+
+PLAN:
+
+the most important thing to do: make a usable js webapp.
+
+menu on left side that doesn't go away.
+
+5 pages. Import/export page, Projects page, categorizing page, calendar page, invoice page, 
+
+Import/export page:
+        What it currently does in python with imports: Runs the import from activity watch and google calendar files.  
+        What id does with exports: takes the clockify api key and uploads to clockify.
+
+Projects page:
+
+        projects get pulled from clockify into table of options. You can select your own complete list of projects on this page. Just checklist table, with selected checklist bubbling up to the top
+        project category is also shown.
+
+Categorizing page:
+        can take a look at activitywatch+gcal data on any day/week/month.
+
+        Left hand half of page (time filtered):
+
+                Default is checked for an optional "uncategorized" checkbox top left
+                Default is checked for an optional "show gcal" checkbox top left
+                Default is checked for an optional "show activity watch" checkbox top left
+                Show irrelevant is default unchecked for an optional "show irrelevant" checkbox top left
+                "Threshold" is an editable text field option for minimum time threshold to show items.
+
+                If "uncategorized" unchecked, all window titles sorted by total time descending in relevent day/week/month are shown.
+                If "uncategorized" checked, only window titles which are uncategorized sorted by total time descending in relevent day/week/month are shown.
+
+                Each row shows:
+                Window title, total time, project/uncategorized
+
+        Right hand half of page (project search strings)
+
+                name of the project along with the relevant tags. Probably makes sense to just add tags and little close [x] things on each tag. can scroll through projects and edit their tags. Left hand auto updates once a tag is entered.
+                "Irrelevant" search box is used to get rid of things you don't want to see.
+
+Calendar page
+        Shows chunked results in gcal format for each week. window Title and project shown.
+
+Invoice page:
+        forms for all the invoice parameters.
+        click button generate invoice as pdf. Text boxes allow you to fill in and save your details.
+
+needs to be javascript....
+
+
 TODO: need to fix time zone issues... Carina's calendar event is always the wrong hour...
 
 TODO: critical for anyone else to use this that we move away from using the explicit project ID's. Ideally, it will pull in the project ID list, and you can type the common name as needed. A set of project id's should be pulled in to select from.

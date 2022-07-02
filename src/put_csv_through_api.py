@@ -7,11 +7,10 @@ def main():
     JSON_PARAMETERS_LOCATION = '../data/params.json'
     params = json.load(open(JSON_PARAMETERS_LOCATION, 'r'))
 
-    CHUNKS_INPUT_CSV_LOCATION = '../data/calendar_output_raw.csv'
+    CHUNKS_INPUT_CSV_LOCATION = '../data/chunked_events.csv'
 
     workspaceid = dict(params.items())["clockify_workspace_id"]
 
-    # workspaceid = "62574afc85712a3bddd78faf" # test
     print("please enter clockify API key")
     api_key = input()
     data = {'x-api-key': api_key}

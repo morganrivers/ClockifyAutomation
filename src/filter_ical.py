@@ -10,7 +10,7 @@ utc = pytz.utc
 
 # cuts off any months before the month of interest, saves result as .ics file.
 def main(UNFILTERED_GCAL_LOCATION):
-    JSON_PARAMETERS_LOCATION = '../params.json'
+    JSON_PARAMETERS_LOCATION = '../data/params.json'
     params = json.load(open(JSON_PARAMETERS_LOCATION, 'r'))
     year = dict(params.items())["year"]
     month_of_interest = dict(params.items())["month_of_interest"]

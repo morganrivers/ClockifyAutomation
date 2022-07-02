@@ -12,7 +12,7 @@ import aw_query
 
 
 def main(UNPROCESSED_AW_LOCATION):
-    JSON_PARAMETERS_LOCATION = '../params.json'
+    JSON_PARAMETERS_LOCATION = '../data/params.json'
     OUTPUT_CSV_LOCATION = "../data/activitywatch_output_raw.csv"
     CLOCKIFY_CATEGORIES_LOCATION = '../data/aw-category-export.json'
 
