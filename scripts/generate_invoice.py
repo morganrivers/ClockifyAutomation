@@ -29,6 +29,7 @@ multiplied_total_float = total_hours_float * hourly_rate_float
 multiplied_total = str(total_hours_float * hourly_rate_float)
 overall_total = multiplied_total
 
+
 output = """
 <!DOCTYPE html>
 <html>
