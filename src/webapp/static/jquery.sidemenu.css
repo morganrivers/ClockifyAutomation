@@ -8,7 +8,7 @@ body {
 }
 
 [data-role=sidemenu-container] {
-  overflow: hidden;
+  overflow: scroll;
   height: 100%;
 }
 
@@ -84,7 +84,7 @@ body {
 
 .topnav {
   background-color: #333;
-  overflow: hidden;
+  overflow: scroll
 }
 
 /* Style the links inside the navigation bar */
@@ -94,7 +94,7 @@ body {
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
-  font-size: 17px;
+  font-size: 12px;
   margin-top: 3px;
 }
 
@@ -197,3 +197,4 @@ label{ margin-right: 15px; }
    border-radius: 5px;
 }
 
+#ui-datepicker-div { font-size: 12px; } 

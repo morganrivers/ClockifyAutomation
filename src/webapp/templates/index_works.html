@@ -1,0 +1,9 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
+<script> 
+    let name = prompt("Enter a name : "); 
+    $.ajax({ 
+        url: "/api/" + name + "/" 
+    }).done(function(res) { 
+        alert(res.name); 
+    }); 
+</script> 

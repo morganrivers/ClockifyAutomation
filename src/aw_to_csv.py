@@ -10,23 +10,23 @@ import aw_transform
 from aw_query.functions import filter_period_intersect
 import aw_query
 
+import json
 
-def main(UNPROCESSED_AW_LOCATION):
-    JSON_PARAMETERS_LOCATION = '../data/params.json'
-    OUTPUT_CSV_LOCATION = "../data/activitywatch_output_raw.csv"
-    CLOCKIFY_CATEGORIES_LOCATION = '../data/aw-category-export.json'
+CLOCKIFY_CATEGORIES_LOCATION = '../data/aw-category-export.json'
+JSON_PARAMETERS_LOCATION = '../data/params.json'
+OUTPUT_CSV_LOCATION = "../data/activitywatch_output_raw.csv"
 
-    params = json.load(open(JSON_PARAMETERS_LOCATION, 'r'))
 
-    hours_off_utc = dict(params.items())["hours_off_utc"]
-    year = dict(params.items())["year"]
-    month_of_interest = dict(params.items())["month_of_interest"]
-    aw_work_tree_root = dict(params.items())["aw_work_tree_root"]
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, z):
+        if isinstance(z, datetime):
+            return (str(z))
+        elif isinstance(z, timedelta):
+            return (str(z))
+        else:
+            return super().default(z)
 
-    MONTH_OF_INTEREST = month_of_interest
-    YEAR = year
-    HOURS_OFF_UTC = hours_off_utc
-
+def get_window_events_this_month(YEAR,MONTH_OF_INTEREST):
     client = ActivityWatchClient("test-client", testing=False)
 
     all_afk = client.export_all()['buckets']['aw-watcher-afk_snailshale']
@@ -70,9 +70,12 @@ def main(UNPROCESSED_AW_LOCATION):
                         data={'status': "not-afk"})
     window_events_this_month = filter_period_intersect(window_events, [whole_month])
 
-    print("len(window_events_this_month)")
-    print(len(window_events_this_month))
+    with open("../data/aw_buckets.json", 'w', encoding='utf-8') as jsonf:
+        jsonf.write(json.dumps(window_events_this_month, indent=4,cls=DateTimeEncoder))
 
+    return window_events_this_month
+
+def get_rules():
     with open(CLOCKIFY_CATEGORIES_LOCATION, "r") as read_file:
         # with open("aw-category-export.json", "r") as read_file:
         categories = json.load(read_file)['categories']
@@ -87,6 +90,28 @@ def main(UNPROCESSED_AW_LOCATION):
 
         rule.regex = re.compile(c['rule']['regex'])
         rules.append((c['name'], rule))
+    return rules
+
+def main(UNPROCESSED_AW_LOCATION):
+
+    params = json.load(open(JSON_PARAMETERS_LOCATION, 'r'))
+
+    hours_off_utc = dict(params.items())["hours_off_utc"]
+    year = dict(params.items())["year"]
+    month_of_interest = dict(params.items())["month_of_interest"]
+    aw_work_tree_root = dict(params.items())["aw_work_tree_root"]
+
+    MONTH_OF_INTEREST = month_of_interest
+    YEAR = year
+    HOURS_OFF_UTC = hours_off_utc
+
+    window_events_this_month = get_window_events_this_month(YEAR,MONTH_OF_INTEREST)
+    
+    print("len(window_events_this_month)")
+    print(len(window_events_this_month))
+
+    rules = get_rules()
+
     categorized = aw_transform.categorize(window_events_this_month, rules)
 
     # now we categorize all the existing timesheet data with the correct project, category, description, billable, attended

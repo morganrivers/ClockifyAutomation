@@ -1,0 +1,24 @@
+<html>
+    <head>
+         <!-- <script type="text/javascript">
+            var username = '{{ data.username }}'
+            var site = '{{ data.site }}'
+        </script> -->
+        <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+       <!--  <script type="text/javascript"
+                src="{{ url_for('static', filename='javascripts/app.js') }}"/> -->
+        <script> 
+            let name = prompt("Enter a name : "); 
+            $.ajax({ 
+                url: "/api/" + name + "/" 
+            }).done(function(res) { 
+                alert(res.name); 
+            }); 
+        </script> 
+    </head>
+    <body>
+        <div>
+            <button id="dynamic-list" href="#">Toggle Menu</a>
+        </div>
+    </body>
+</html>

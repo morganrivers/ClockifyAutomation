@@ -17,7 +17,6 @@
       margin: 8px;
     }
 
-    
     </style>
   </head>
   <body>
@@ -37,13 +36,13 @@
         </div>
 
             
-        <div>
+        <div id="collapsible_topnav">
            <div class="topnav">
             <a class="active  loadbutton" href="#" data-role="sidemenu-toggle">Toggle Menu</a>
-            <a class="active loadbutton" href="#load_json" style="background-color: blue;">Load Json</a>
+            <a class="active loadbutton" href="#load_json" style="background-color: blue;" id="load_json">Load Json</a>
             <div>
               <input type="checkbox" id="vehicle1" name="colorCheckbox" value="red" checked="true" class="mybutton">
-              <label for="vehicle1"> Uncategorized</label><br>
+              <label for="vehicle1"> Show "Irrelevant"</label><br>
             </div>
             <div>
               <input type="checkbox" id="vehicle2" name="vehicle2" value="2" checked="true" class="largerCheckbox">
@@ -55,7 +54,13 @@
             </div>
             <div>
               <input type="checkbox" id="vehicle4" name="vehicle4" value="4" checked="false" class="largerCheckbox">
-              <label for="vehicle4"> Show "Irrelevant"</label><br>
+              <label for="vehicle4"> Uncategorized</label><br>
+            </div>
+            <div>
+            Start Date <input type="text" id="date1" name="date1" style="width: 90px;"/> <br/>
+            </div>
+            <div>
+            End Date <input type="text" id="date1" name="date1" style="width: 90px;"/> <br/>
             </div>
            </div> 
 
@@ -66,7 +71,8 @@
               <table class="table_events">
                 <tr> 
                   <th>Window Title</th>
-                  <th>Total Time</th>
+                  <th width = "12%">Total Time</th>
+                  <th width = "13%">Activity Watch or Google Calendar</th>
                   <th>Project/Uncategorized</th>
                 </tr>
                 <tr class="example">
@@ -104,42 +110,7 @@
                 </tr> 
               </table>
           </div>
-          <div id="col2">
-              <table class="table_categorize">
-                <tr> 
-                  <th width = "33%">Project</th>
-                  <th width = "67%">Tags (Click to remove)</th>
-                </tr>
-                <tr class="example">
-                 <td>
-                    <div class="red box" id="myDIV"><div>title</div><input placeholder="add search string" type="text" id="shoppingItem" /></div>
-                  </td>
-                  <td>
-                    <div class="red box">
-                      <ul class="shopping_item_list" id = "dynamic-list">
-                      </ul>
-                    </div>
-                  </td>
-                </tr> 
-                <tr>
-                 <td>
-                    <div class="green box" id="myDIV">You have selected <strong>red checkbox</strong> so i am here</div>
-                  </td>
-                  <td>
-                    <div class="green box">You have selected <strong>green checkbox</strong> so i am here</div>
-                  </td>
-                </tr> 
-                <tr>
-                 <td>
-                    <div class="blue box" id="myDIV">You have selected <strong>red checkbox</strong> so i am here</div>
-                  </td>
-                  <td>
-                    <div class="blue box">You have selected <strong>green checkbox</strong> so i am here</div>
-                  </td>
-                </tr> 
-              </table>
-          </div> 
-        </div>
+          <div id="col2"></div>
 
       </div>
     </div>
