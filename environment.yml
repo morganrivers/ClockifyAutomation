@@ -1,0 +1,4 @@
+name: clockify_automation
+channels:
+  - defaults
+prefix: /home/dmrivers/Apps/miniconda3/envs/clockify_automation

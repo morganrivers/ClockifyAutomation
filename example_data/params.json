@@ -1,0 +1,10 @@
+{
+"hours_off_utc":4,
+"your_email":"jsmith@example.com",
+"month_of_interest":5, 
+"year":2022,
+"minutes_timeblock_clockify":30,
+"seconds_per_timeblock_threshold":60,
+"clockify_workspace_id" : "stringofnumbersandletters",
+"aw_work_tree_root" : "Description*stringofnumbersandletters"  // comes from the activity watch json root for work categories
+}

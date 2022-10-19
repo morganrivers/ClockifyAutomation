@@ -9,17 +9,17 @@ import json
 
 
 # use an exported AW categories list and the AW API to get the data, then
-# run through the categorization, as well as create an output CSV and ICS 
+# run through the categorization, as well as create an output CSV and ICS
 # representing the data
 def main():
-    INPUT_CALENDAR_LOCATION = '../data/gcal_shortened.ics'
-    CALENDAR_EVENTS_OUTPUT_CSV_LOCATION = '../data/calendar_output_raw.csv'
-    CALENDAR_EVENTS_OUTPUT_ICS_LOCATION = '../data/calendar_output_raw.ics'
-    JSON_CATEGORIES_LOCATION = '../data/gcal_categories.json'
-    JSON_PARAMETERS_LOCATION = '../data/params.json'
+    INPUT_CALENDAR_LOCATION = "../data/gcal_shortened.ics"
+    CALENDAR_EVENTS_OUTPUT_CSV_LOCATION = "../data/calendar_output_raw.csv"
+    CALENDAR_EVENTS_OUTPUT_ICS_LOCATION = "../data/calendar_output_raw.ics"
+    JSON_CATEGORIES_LOCATION = "../data/gcal_categories.json"
+    JSON_PARAMETERS_LOCATION = "../data/params.json"
 
-    params = json.load(open(JSON_PARAMETERS_LOCATION, 'r'))
-    data = json.load(open(JSON_CATEGORIES_LOCATION, 'r'))
+    params = json.load(open(JSON_PARAMETERS_LOCATION, "r"))
+    data = json.load(open(JSON_CATEGORIES_LOCATION, "r"))
 
     hours_off_utc = dict(params.items())["hours_off_utc"]
     your_email = dict(params.items())["your_email"]
@@ -30,19 +30,19 @@ def main():
     YOUR_EMAIL = your_email
     YEAR = year
     MONTH_OF_INTEREST = month_of_interest
-    # classify a calendar event and return category's description, 
+    # classify a calendar event and return category's description,
     # project, billable
     def classify(summary):
         slow = summary.lower()
         cats = dict(dict(data.items())["categories"].items())
         for k, i in cats.items():
-            if((slow in k.lower()) or (k.lower() in slow)):
+            if (slow in k.lower()) or (k.lower() in slow):
                 description = i["description"]
                 project = i["project"]
                 billable = i["billable"]
                 return (description, project, billable)
 
-        print('unmatched calendar item')
+        print("unmatched calendar item")
         print(summary)
         print("")
 
@@ -50,13 +50,13 @@ def main():
         default = dict(dict(data.items())["default"].items())
         return (default["description"], default["project"], default["billable"])
 
-    g = open(INPUT_CALENDAR_LOCATION,'rb')
+    g = open(INPUT_CALENDAR_LOCATION, "rb")
     text = g.read()
-    string = text.decode('utf-8')
+    string = text.decode("utf-8")
     cal = Calendar(string)
 
-    i=0
-    df=pd.DataFrame([])
+    i = 0
+    df = pd.DataFrame([])
     df_start_time = []
     df_end_time = []
     df_start_timestamp = []
@@ -65,75 +65,60 @@ def main():
     df_description = []
     df_billable = []
 
-    #build up a new calendar ics reflecting just meetings
+    # build up a new calendar ics reflecting just meetings
     new_calendar = Calendar()
 
     for event in cal.events:
 
         start = event.begin.datetime
         end = event.end.datetime
-        if("gang" in event.name.lower()):
-            print("")
-            print("gang")
-            print(start)
-            print("")
-        if(start is None):
+        if start is None:
             continue
-        if(end is None):
+        if end is None:
             continue
         startdt = start + timedelta(hours=HOURS_OFF_UTC)
         enddt = end + timedelta(hours=HOURS_OFF_UTC)
 
-        if(startdt is None):
+        if startdt is None:
             continue
-        if(enddt is None):
+        if enddt is None:
             continue
 
-        if(startdt.month != MONTH_OF_INTEREST or startdt.year != YEAR):
+        if startdt.month != MONTH_OF_INTEREST or startdt.year != YEAR:
             continue
 
         duration = enddt - startdt
 
-        if(duration.seconds/60/60>=7): #remove any really long events
+        if duration.seconds / 60 / 60 >= 7:  # remove any really long events
             continue
 
-        if(duration.seconds<=10): #remove any really short events
+        if duration.seconds <= 10:  # remove any really short events
             continue
 
-        utc=timezone.utc
+        utc = timezone.utc
         startdt_utc = startdt.replace(tzinfo=utc)
         enddt_utc = enddt.replace(tzinfo=utc)
 
-
         accept = False
         for attendee in event.attendees:
-            if(attendee.email == YOUR_EMAIL):
-                if(attendee.partstat == "ACCEPTED"
-                   or attendee.partstat == "TENTATIVE"):
+            if attendee.email == YOUR_EMAIL:
+                if attendee.partstat == "ACCEPTED" or attendee.partstat == "TENTATIVE":
                     accept = True
-        # print(startdt_utc)
-        if(startdt_utc.strftime('%d')=="06" or startdt_utc.strftime('%d')=="07"):
-            print(startdt_utc)
-            print("accept")
-            print(accept)
-            print(event.name)
-        if(not accept):
+        if not accept:
             continue
 
         summary = event.name
-        # print(summary)
         description, project, billable = classify(summary)
-        # quit()
 
-        if(billable):
+        if billable:
             b_string = "true"
         else:
             b_string = "false"
 
         df_start_timestamp.append(startdt_utc.timestamp())
         df_end_timestamp.append(enddt_utc.timestamp())
-        df_start_time.append(startdt_utc.strftime('%Y-%m-%dT%T.000Z'))
-        df_end_time.append(enddt_utc.strftime('%Y-%m-%dT%T.000Z'))
+        df_start_time.append(startdt_utc.strftime("%Y-%m-%dT%T.000Z"))
+        df_end_time.append(enddt_utc.strftime("%Y-%m-%dT%T.000Z"))
 
         df_project.append(project)
         df_description.append(description)
@@ -143,30 +128,31 @@ def main():
 
         # create copy of calendar for ease of error checking
         event = Event()
-        if(billable):
-            event.name = description+" "+project+" bill"
+        if billable:
+            event.name = description + " " + project + " bill"
         else:
-            event.name = description+" "+project+" no bill"
+            event.name = description + " " + project + " no bill"
 
         event.begin = arrow.get(startdt_utc)
         event.end = arrow.get(enddt_utc)
         new_calendar.events.add(event)
 
-    with open(CALENDAR_EVENTS_OUTPUT_ICS_LOCATION, 'w') as f:
+    with open(CALENDAR_EVENTS_OUTPUT_ICS_LOCATION, "w") as f:
         f.write(str(new_calendar))
 
     g.close()
-    df['Project'] = df_project
-    df['Description'] = df_description
-    df['Billable'] = df_billable
-    df['Start Time'] = df_start_time
-    df['End Time'] = df_end_time
-    df['start_timestamp'] = df_start_timestamp
-    df['end_timestamp'] = df_end_timestamp
+    df["Project"] = df_project
+    df["Description"] = df_description
+    df["Billable"] = df_billable
+    df["Start Time"] = df_start_time
+    df["End Time"] = df_end_time
+    df["start_timestamp"] = df_start_timestamp
+    df["end_timestamp"] = df_end_timestamp
 
     df.to_csv(CALENDAR_EVENTS_OUTPUT_CSV_LOCATION, index=False)
     print("Calendar csvs categorized.")
     print("")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
