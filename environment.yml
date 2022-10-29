@@ -1,7 +1,6 @@
 name: spacy
 channels:
   - anaconda
-  - microsoft
   - conda-forge
   - defaults
 dependencies:
@@ -88,4 +87,3 @@ dependencies:
     - pydantic==1.8.2
     - pyyaml==6.0
     - spacy-lookups-data==1.0.3
-prefix: /Users/mariana/miniconda3/envs/spacy
