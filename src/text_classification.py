@@ -44,14 +44,14 @@ example = []
 # Update the model with iterating each text
 for i in range(len(texts)):
     doc = nlp.make_doc(texts[i])
-example.append(Example.from_dict(doc, annotations[i]))
+    example.append(Example.from_dict(doc, annotations[i]))
 
-nlp.update(
-    example,
-    drop=0.2,  # dropout - make it harder to memorise data
-    sgd=optimizer,  # callable to update weights
-    losses=losses
-)
+    nlp.update(
+        example,
+        drop=0.2,  # dropout - make it harder to memorise data
+        sgd=optimizer,  # callable to update weights
+        losses=losses
+    )
 
 # TODO: once we have the losses what do we want to use them for
 print("Losses", losses)
@@ -59,7 +59,7 @@ print("Losses", losses)
 # TODO: get the actual predictions
 # run it on new data
 # we use the updated model here with new data
-# doc = nlp(text)
-# print("Entities", [(ent.text, ent.label_) for ent in doc.ents])
+doc = nlp(text)
+print("Entities", [(ent.text, ent.label_) for ent in doc.ents])
 # nlp.to_disk("./ncku_model")
 # https://github.com/QiongyunChang/Chatbot_NLP/blob/29bb6462557ad79fbfe0f58b7dc0f5c598bd2dce/lab3/HW3_3.py
