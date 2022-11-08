@@ -59,7 +59,7 @@ while True:
     Enter u to UPLOAD to clockify, e to EXIT, r to RERUN the processing to clockify 
     events with same file (probably because you've updated some values in the
     filter parameters) 
-    (u / e / r)
+    Please type one of these characters then press enter: (u / e / r)
     """
     )
     while True:
