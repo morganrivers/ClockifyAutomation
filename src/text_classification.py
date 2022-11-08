@@ -1,34 +1,46 @@
-import en_core_web_sm
 import pandas as pd
 import spacy
-from spacy.pipeline.textcat_multilabel import DEFAULT_MULTI_TEXTCAT_MODEL
+from spacy.pipeline.textcat import DEFAULT_TEXTCAT_MODEL
 from spacy.training import Example
 from spacy.util import minibatch, compounding
 
+# load the training data
 
-window_titles = pd.read_csv('test_data/training_data.csv', delimiter=";", decimal=",")
+window_titles = pd.read_csv("test_data/training_data.csv", delimiter=";", decimal=",")
 
-nlp = en_core_web_sm.load() 
+import en_core_web_sm
+
+nlp = en_core_web_sm.load()
 
 config = {
-   "threshold": 0.5,
-   "model": DEFAULT_MULTI_TEXTCAT_MODEL,
+    "threshold": 0.5,
+    "model": DEFAULT_MULTI_TEXTCAT_MODEL,
 }
 
-nlp.add_pipe("textcat_multilabel", config=config)
-textcat_multilabel = nlp.get_pipe('textcat_multilabel')
+# create the text classifier categories and add to the model
 
-textcat_multilabel.add_label("programming")
-textcat_multilabel.add_label("browsing")
-textcat_multilabel.add_label("email")
-textcat_multilabel.add_label("miscellaneous")
+nlp.add_pipe("textcat")
+textcat = nlp.get_pipe("textcat")
 
-train_texts = window_titles['events'].values
-train_labels = [{'cats': {'programming': label == 'p',
-                          'browsing': label == 'b', 
-                          'email': label == 'e', 
-                          'miscellaneous': label == 'm'}}
-                for label in window_titles['label']]
+textcat.add_label("programming")
+textcat.add_label("browsing")
+textcat.add_label("email")
+textcat.add_label("miscellaneous")
+
+# assign labeled categories from the "label" row in the training data
+
+train_texts = window_titles["events"].values
+train_labels = [
+    {
+        "cats": {
+            "programming": label == "p",
+            "browsing": label == "b",
+            "email": label == "e",
+            "miscellaneous": label == "m",
+        }
+    }
+    for label in window_titles["label"]
+]
 
 train_data = list(zip(train_texts, train_labels))
 
@@ -50,7 +62,7 @@ for i in range(len(texts)):
         example,
         drop=0.2,  # dropout - make it harder to memorise data
         sgd=optimizer,  # callable to update weights
-        losses=losses
+        losses=losses,
     )
 
 # TODO: once we have the losses what do we want to use them for
