@@ -8,21 +8,41 @@ Backend:
 
 Pages:
 1. @morgan Categorizing each day (sorted descending by total time of window title)
-* option to pull in projects from the clockify backend, or create your own projects separate from clockify
+* just uses projects from the "Projects" page (which are either user-made or imported from clockify)
 * allows editing of  "categorization", similar to the existing clockify categorization, where we have a page which has, for each tag, a tag name, billable rate (or "billable/not billable"), and a listing of window titles falling under this category. I think the MVP probably also needs the option for this to have a regex search feature so if someone wants to add a strictly defined classification they can. So you can either categorize with regex or window titles individually
 * machine learning model gives "suggestions" which you can confirm or alter if needed
+* can take a look at activitywatch+gcal data on any given day
+a. Left hand half of page (time filtered):
+* Default is checked for an optional "uncategorized" checkbox top left
+* Default is checked for an optional "show gcal" checkbox top left
+* Default is checked for an optional "show activity watch" checkbox top left
+* If "uncategorized" unchecked, all window titles (sorted by total time descending in relevent day) are shown.
+* If "uncategorized" checked, only window titles which are uncategorized (sorted by total time descending in relevent day) are shown.
+* Each row shows: Window title, total time, project/uncategorized
+b. Right hand half of page (project search strings)
+* name of the project along with the relevant regex (displayed as tags). Probably makes sense to just add tags and little close [x] things on each tag. can scroll through projects and edit their tags. Left hand auto updates once a tag is entered.
+* "Irrelevant" category at top is used to get rid of things you don't want to see (if you don't care to track time for irrelevant window titles).
+
+
 2. settings page
-* Button for porn scrubbing
+* Button for porn scrubbing (already partially implemented with delete_aw_events.py)
 (Also, the way I deal with porn is you just have to use "tor" browser or "incognito", and it will recognize those keywords and automatically delete window titles from the Activity Watch events before generating any summary results or data processing for time tracking. There could also be an option to label these as "NSFW" :P Maybe this can be a tickbox option in the UI, "ignore NSFW" or "keep time track of generic NSFW label for personal time accounting" xD)
 * input clockify api key
 * gcal secret url text box
 * option to turn on machine learning categorization guessing
-* export to api button
+* export (uploads) to clockify api button (curretnly implemented with put_csv_through_api.py)
+* import from gcal button (currently implemented by running gcal_to_csv.py)
+* "Threshold" is an editable text field option for minimum time threshold to show items.
 
 3. visualization based on existing activitywatch (with piechart)
 * Involves an "Activity" screen visualization of the projects (specifically, I think the MVP can have "Top Categories" and "Category Tree" [here](https://activitywatch.net/img/screenshots/screenshot-v0.9.3-activity.png)) for each day in addition to a date picker for the day or series of days/weeks/months which will be visualized. This is actually very similar to the clockify feature (see https://clockify.me/feature-list).
 
 5. @morgan pdf invoice generation
+* Invoice page:
+* forms for all the invoice parameters.
+* click button generate invoice as pdf. Text boxes allow you to fill in and save your details.
+* already implemented with generate_invoice.py
+
 6. Projects page
 * button to pull in from clockify
 * option to alter names and details and billable rates of projects
@@ -32,52 +52,6 @@ Pages:
 API:
 1. option to pull in projects from the clockify backend, or create your own projects separate from clockify
 
-
-
-
-
-
-
-
-Import/export page:
-        What it currently does in python with imports: Runs the import from activity watch and google calendar files.  
-        What id does with exports: takes the clockify api key and uploads to clockify.
-
-Projects page:
-
-        projects get pulled from clockify into table of options. You can select your own complete list of projects on this page. Just checklist table, with selected checklist bubbling up to the top
-        project category is also shown.
-
-Categorizing page:
-        can take a look at activitywatch+gcal data on any day/week/month.
-
-        Left hand half of page (time filtered):
-
-                Default is checked for an optional "uncategorized" checkbox top left
-                Default is checked for an optional "show gcal" checkbox top left
-                Default is checked for an optional "show activity watch" checkbox top left
-                Show irrelevant is default unchecked for an optional "show irrelevant" checkbox top left
-                "Threshold" is an editable text field option for minimum time threshold to show items.
-
-                If "uncategorized" unchecked, all window titles sorted by total time descending in relevent day/week/month are shown.
-                If "uncategorized" checked, only window titles which are uncategorized sorted by total time descending in relevent day/week/month are shown.
-
-                Each row shows:
-                Window title, total time, project/uncategorized
-
-        Right hand half of page (project search strings)
-
-                name of the project along with the relevant tags. Probably makes sense to just add tags and little close [x] things on each tag. can scroll through projects and edit their tags. Left hand auto updates once a tag is entered.
-                "Irrelevant" search box is used to get rid of things you don't want to see.
-
-Calendar page
-        Shows chunked results in gcal format for each week. window Title and project shown.
-        https://github.com/ArrobeFr/jquery-calendar-bs4
-Invoice page:
-        forms for all the invoice parameters.
-        click button generate invoice as pdf. Text boxes allow you to fill in and save your details.
-
-needs to be javascript....
 
 
 TODO: need to fix time zone issues... Carina's calendar event is always the wrong hour...
@@ -91,6 +65,8 @@ You will need to get the API key from the settings in clockify and use the scrip
 Some of this appears to be replicated here:
 https://github.com/ActivityWatch/aw-import-ical/blob/master/main.py
 
+# HOW IT CURRENTLY WORKS
+
 1. Make sure the settings of activitywatch categorize the name in the format [description]\*[clockify project id hex string] and export the activitywatch json categories as 'data/aw-category-export.json'
 2. Export your google calendar as gcal.ics. (Settings -> Click on Calendar on left -> Export Calendar). May need to unzip. Example: 
         unzip morgan @ allfed.info.ical.zip
@@ -103,8 +79,6 @@ https://github.com/ActivityWatch/aw-import-ical/blob/master/main.py
         Now you can inspect the calendar output, make sure it's not missing anything (can compare to month's data/gcal_shortened.ics by running 
         $ calcurse -i data/gcal_shortened.ics;calcurse
         and you'll see both)
-
-
 
 2. Alter the month and year of filter_ical.py. Run filter_ical.py. Creates gcal_shortened.ics with just the one month of calendar events.
 3. Run aw_to_csv.py. The resulting csv is in 'data/activitywatch_output_raw.csv', 
