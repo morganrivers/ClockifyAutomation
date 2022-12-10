@@ -4,9 +4,32 @@ timezone off for integrated model call
 add in hours from phone
 
 
+MVP PLAN:
+
+-> function that will generate the pdf with results
+    - configuration to remove miscellaneous tags + user selected tags from the pdf output
+-> run the program at all times add a tray icon for it
+    https://github.com/moses-palmer/pystray
+-> prompt users on the first X (7?) days of use every new [tab in program] which [tag] should we label it with
+-> create screen where user can
+    - input boxes for their gcal/activitywatch API keys
+        - primarily the user will input their API keys, later on we add the login/automatic fetch support for the keys
+    - ? button to erase senstive data
+        - ? should we try to recognize porn with our language model
+    - button to generate the result pdf
+        - I'm thinking this button should both call the function that retrains the model + generate the pdf
+        - ? or maybe not cause eventually the pdf will be the size of the world, maybe we should throw old data away and just train the models with 2mo old data
+    - visualize and edit all of their activities and manually label the windows
+        - ? possibility to cluster similar windows through search, so if users want to label every single use of "terminal" as "work", or "youtube" as "free time" they can
+        - this change has to be r+w on the real csv file
+        - ? re-run model automatically once changes are done
+    - tickbox that removes miscellaneous tags + user selected tags from the pdf output
+
+
 PLAN:
 
 the most important thing to do: make a usable js webapp.
+-> doesn't have to be a js webapp, we can create a python app using a)pyside b)pyqt c)tkinter. AFAIU pyside offers the easiest way to have a slick app.
 
 menu on left side that doesn't go away.
 
