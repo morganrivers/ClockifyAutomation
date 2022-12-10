@@ -6,11 +6,14 @@ add in hours from phone
 
 MVP PLAN:
 Pages:
-    1. @morgan Categorizing each day (sorted descending by total time of window title)
-    2. settings page
-    3. visualization based on existing activitywatch (with piechart)
-    4. @morgan pdf invoice generation
+1. @morgan Categorizing each day (sorted descending by total time of window title)
+2. settings page
+* Button for porn scrubbing
+* input clockify api key
+3. visualization based on existing activitywatch (with piechart)
+4. @morgan pdf invoice generation
     
+API:
 
 
 -> function that will generate the pdf with results
