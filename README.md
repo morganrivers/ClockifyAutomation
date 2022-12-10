@@ -4,17 +4,19 @@ timezone off for integrated model call
 add in hours from phone
 
 
-MVP PLAN:
+MVP PLAN: we are *not* using clockify as the "main UI", we will still have to integrate loosely with it and include pulling project names as well as pushing clockify events. https://clockify.me/feature-list for what clockify does is useful reference as we re-implement some features.
 Pages:
 1. @morgan Categorizing each day (sorted descending by total time of window title)
+* option to pull in projects from the clockify backend, or create your own projects separate from clockify
 2. settings page
 * Button for porn scrubbing
+(Also, the way I deal with porn is you just have to use "tor" browser or "incognito", and it will recognize those keywords and automatically delete window titles from the Activity Watch events before generating any summary results or data processing for time tracking. There could also be an option to label these as "NSFW" :P Maybe this can be a tickbox option in the UI, "ignore NSFW" or "keep time track of generic NSFW label for personal time accounting" xD)
 * input clockify api key
 3. visualization based on existing activitywatch (with piechart)
 4. @morgan pdf invoice generation
-    
-API:
 
+API:
+1. option to pull in projects from the clockify backend, or create your own projects separate from clockify
 
 -> function that will generate the pdf with results
     - configuration to remove miscellaneous tags + user selected tags from the pdf output
