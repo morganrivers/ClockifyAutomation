@@ -13,12 +13,17 @@ Backend:
 Pages:
 1. @morgan Categorizing each day (sorted descending by total time of window title)
 * option to pull in projects from the clockify backend, or create your own projects separate from clockify
+* allows editing of  "categorization", similar to the existing clockify categorization, where we have a page which has, for each tag, a tag name, billable rate (or "billable/not billable"), and a listing of window titles falling under this category. I think the MVP probably also needs the option for this to have a regex search feature so if someone wants to add a strictly defined classification they can. So you can either categorize with regex or window titles individually.
 2. settings page
 * Button for porn scrubbing
 (Also, the way I deal with porn is you just have to use "tor" browser or "incognito", and it will recognize those keywords and automatically delete window titles from the Activity Watch events before generating any summary results or data processing for time tracking. There could also be an option to label these as "NSFW" :P Maybe this can be a tickbox option in the UI, "ignore NSFW" or "keep time track of generic NSFW label for personal time accounting" xD)
 * input clockify api key
+* gcal secret url text box
+
 3. visualization based on existing activitywatch (with piechart)
-4. @morgan pdf invoice generation
+* Involves an "Activity" screen visualization of the projects (specifically, I think the MVP can have "Top Categories" and "Category Tree" [here](https://activitywatch.net/img/screenshots/screenshot-v0.9.3-activity.png)) for each day in addition to a date picker for the day or series of days/weeks/months which will be visualized. This is actually very similar to the clockify feature (see https://clockify.me/feature-list).
+
+5. @morgan pdf invoice generation
 
 API:
 1. option to pull in projects from the clockify backend, or create your own projects separate from clockify
