@@ -5,6 +5,11 @@ add in hours from phone
 
 
 MVP PLAN: we are *not* using clockify as the "main UI", we will still have to integrate loosely with it and include pulling project names as well as pushing clockify events. https://clockify.me/feature-list for what clockify does is useful reference as we re-implement some features.
+Backend:
+1 make a fork of activity watch without any of its UI features, so that it monitors and saves events, but is missing a lot of the the current UI stuff, we only really want the settings page and visualization page, which we will also modify.
+2 set it up as a standalone elektron app to be run on linux, windows, or mac on startup (make sure it's a thing running in the tray, using https://github.com/moses-palmer/pystray). NOTE: System tray is already implemented in AW though.
+
+
 Pages:
 1. @morgan Categorizing each day (sorted descending by total time of window title)
 * option to pull in projects from the clockify backend, or create your own projects separate from clockify
