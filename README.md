@@ -1,9 +1,3 @@
-Edits:
-seemingly missing green gang call on 6/6 in gcal_shortened, probably a repeating call problem
-timezone off for integrated model call
-add in hours from phone
-
-
 MVP PLAN: we are *not* using clockify as the "main UI", we will still have to integrate loosely with it and include pulling project names as well as pushing clockify events. https://clockify.me/feature-list for what clockify does is useful reference as we re-implement some features.
 
 Backend:
@@ -23,11 +17,17 @@ Pages:
 * input clockify api key
 * gcal secret url text box
 * option to turn on machine learning categorization guessing
+* export to api button
 
 3. visualization based on existing activitywatch (with piechart)
 * Involves an "Activity" screen visualization of the projects (specifically, I think the MVP can have "Top Categories" and "Category Tree" [here](https://activitywatch.net/img/screenshots/screenshot-v0.9.3-activity.png)) for each day in addition to a date picker for the day or series of days/weeks/months which will be visualized. This is actually very similar to the clockify feature (see https://clockify.me/feature-list).
 
 5. @morgan pdf invoice generation
+6. Projects page
+* button to pull in from clockify
+* option to alter names and details and billable rates of projects
+* very similar to projects page from https://clockify.me/feature-list
+
 
 API:
 1. option to pull in projects from the clockify backend, or create your own projects separate from clockify
@@ -38,36 +38,6 @@ API:
 
 
 
-
-
--> function that will generate the pdf with results
-    - configuration to remove miscellaneous tags + user selected tags from the pdf output
--> run the program at all times add a tray icon for it
-    https://github.com/moses-palmer/pystray
--> prompt users on the first X (7?) days of use every new [tab in program] which [tag] should we label it with
--> create screen where user can
-    - input boxes for their gcal/activitywatch API keys
-        - primarily the user will input their API keys, later on we add the login/automatic fetch support for the keys
-    - ? button to erase senstive data
-        - ? should we try to recognize porn with our language model
-    - button to generate the result pdf
-        - I'm thinking this button should both call the function that retrains the model + generate the pdf
-        - ? or maybe not cause eventually the pdf will be the size of the world, maybe we should throw old data away and just train the models with 2mo old data
-    - visualize and edit all of their activities and manually label the windows
-        - ? possibility to cluster similar windows through search, so if users want to label every single use of "terminal" as "work", or "youtube" as "free time" they can
-        - this change has to be r+w on the real csv file
-        - ? re-run model automatically once changes are done
-    - tickbox that removes miscellaneous tags + user selected tags from the pdf output
-
-
-PLAN:
-
-the most important thing to do: make a usable js webapp.
--> doesn't have to be a js webapp, we can create a python app using a)pyside b)pyqt c)tkinter. AFAIU pyside offers the easiest way to have a slick app.
-
-menu on left side that doesn't go away.
-
-5 pages. Import/export page, Projects page, categorizing page, calendar page, invoice page, 
 
 Import/export page:
         What it currently does in python with imports: Runs the import from activity watch and google calendar files.  
