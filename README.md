@@ -5,20 +5,24 @@ add in hours from phone
 
 
 MVP PLAN: we are *not* using clockify as the "main UI", we will still have to integrate loosely with it and include pulling project names as well as pushing clockify events. https://clockify.me/feature-list for what clockify does is useful reference as we re-implement some features.
+
 Backend:
 1 make a fork of activity watch without any of its UI features, so that it monitors and saves events, but is missing a lot of the the current UI stuff, we only really want the settings page and visualization page, which we will also modify.
 2 set it up as a standalone elektron app to be run on linux, windows, or mac on startup (make sure it's a thing running in the tray, using https://github.com/moses-palmer/pystray). NOTE: System tray is already implemented in AW though.
+3 make the spacy text categorization be able to load in the activitywatch events, and then categorize the uncategorized events based on past examples
 
 
 Pages:
 1. @morgan Categorizing each day (sorted descending by total time of window title)
 * option to pull in projects from the clockify backend, or create your own projects separate from clockify
-* allows editing of  "categorization", similar to the existing clockify categorization, where we have a page which has, for each tag, a tag name, billable rate (or "billable/not billable"), and a listing of window titles falling under this category. I think the MVP probably also needs the option for this to have a regex search feature so if someone wants to add a strictly defined classification they can. So you can either categorize with regex or window titles individually.
+* allows editing of  "categorization", similar to the existing clockify categorization, where we have a page which has, for each tag, a tag name, billable rate (or "billable/not billable"), and a listing of window titles falling under this category. I think the MVP probably also needs the option for this to have a regex search feature so if someone wants to add a strictly defined classification they can. So you can either categorize with regex or window titles individually
+* machine learning model gives "suggestions" which you can confirm or alter if needed
 2. settings page
 * Button for porn scrubbing
 (Also, the way I deal with porn is you just have to use "tor" browser or "incognito", and it will recognize those keywords and automatically delete window titles from the Activity Watch events before generating any summary results or data processing for time tracking. There could also be an option to label these as "NSFW" :P Maybe this can be a tickbox option in the UI, "ignore NSFW" or "keep time track of generic NSFW label for personal time accounting" xD)
 * input clockify api key
 * gcal secret url text box
+* option to turn on machine learning categorization guessing
 
 3. visualization based on existing activitywatch (with piechart)
 * Involves an "Activity" screen visualization of the projects (specifically, I think the MVP can have "Top Categories" and "Category Tree" [here](https://activitywatch.net/img/screenshots/screenshot-v0.9.3-activity.png)) for each day in addition to a date picker for the day or series of days/weeks/months which will be visualized. This is actually very similar to the clockify feature (see https://clockify.me/feature-list).
@@ -27,6 +31,14 @@ Pages:
 
 API:
 1. option to pull in projects from the clockify backend, or create your own projects separate from clockify
+
+
+
+
+
+
+
+
 
 -> function that will generate the pdf with results
     - configuration to remove miscellaneous tags + user selected tags from the pdf output
