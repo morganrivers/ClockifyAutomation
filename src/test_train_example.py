@@ -133,5 +133,5 @@ nlp = create_trained_model(train_data_single_label)
 # print_model_predictions_simple(nlp, "The dog is angry")
 print_model_predictions(
     nlp,
-    "': {'app': 'Firefox-esr', 'title': 'Inbox (4,632) - danielmorganrivers@gmail.com - Gmail — Mozilla Firefox'}}",
+    "         Terminator        dmrivers snailshale    Code ClockifyAutomation scripts   ",
 )
