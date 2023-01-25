@@ -18,6 +18,14 @@ div
 
   hr
 
+  GCalSecret
+
+  hr
+
+  ToggleSpacyUse
+
+  hr
+
   div(v-if="!$isAndroid")
     ReleaseNotificationSettings
     hr
@@ -39,6 +47,8 @@ import { useSettingsStore } from '~/stores/settings';
 import DaystartSettings from '~/views/settings/DaystartSettings.vue';
 import TimelineDurationSettings from '~/views/settings/TimelineDurationSettings.vue';
 import ReleaseNotificationSettings from '~/views/settings/ReleaseNotificationSettings.vue';
+import GCalSecret from '~/views/settings/GCalSecret.vue';
+import ToggleSpacyUse from '~/views/settings/ToggleSpacyUse.vue';
 import CategorizationSettings from '~/views/settings/CategorizationSettings.vue';
 import DeveloperSettings from '~/views/settings/DeveloperSettings.vue';
 import Theme from '~/views/settings/Theme.vue';
@@ -50,6 +60,8 @@ export default {
     DaystartSettings,
     TimelineDurationSettings,
     ReleaseNotificationSettings,
+    GCalSecret,
+    ToggleSpacyUse,
     CategorizationSettings,
     Theme,
     ColorSettings,

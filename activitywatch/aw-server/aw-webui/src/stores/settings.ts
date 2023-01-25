@@ -17,6 +17,8 @@ interface State {
   theme: 'light' | 'dark';
 
   newReleaseCheckData: Record<string, any>;
+  gcalSecret: Record<string, any>;
+  useSpacyData: Record<string, any>;
   userSatisfactionPollData: Record<string, any>;
 
   // Whether to show certain WIP features
@@ -46,6 +48,11 @@ export const useSettingsStore = defineStore('settings', {
       nextCheckTime: moment().add(SHORT_BACKOFF_PERIOD, 'seconds'),
       howOftenToCheck: SHORT_BACKOFF_PERIOD,
       timesChecked: 0,
+    },
+    gcalSecret: {
+    },
+
+    useSpacyData: {
     },
     userSatisfactionPollData: {},
 
