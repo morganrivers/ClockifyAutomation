@@ -1,0 +1,8 @@
+*.pyc
+*.swp
+logs
+*.egg-info
+build
+dist
+*~
+.mypy_cache
