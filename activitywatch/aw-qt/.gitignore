@@ -1,0 +1,8 @@
+__pycache__
+*.swp
+*.egg-info
+aw_qt/resources.py
+dist
+build
+.mypy_cache
+*.pyc

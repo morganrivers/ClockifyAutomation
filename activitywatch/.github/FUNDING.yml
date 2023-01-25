@@ -1,0 +1,8 @@
+# Docs for this file can be found here:
+# https://docs.github.com/en/github/administering-a-repository/displaying-a-sponsor-button-in-your-repository
+
+github: ["ActivityWatch", "ErikBjare", "johan-bjareholt"]
+patreon: "erikbjare"
+open_collective: "activitywatch"
+liberapay: "ActivityWatch"
+custom: ["https://activitywatch.net/donate/"]

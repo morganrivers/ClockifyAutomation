@@ -1,0 +1,7 @@
+# See https://github.com/github/linguist for details
+
+# Trick to remove some build tools from language overview
+Makefile linguist-vendored
+*.sh linguist-vendored
+*.cmd linguist-vendored
+*.ps1 linguist-vendored

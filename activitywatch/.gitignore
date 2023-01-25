@@ -1,0 +1,22 @@
+build
+dist
+docs
+other
+old
+
+# Coverage
+*coverage*
+htmlcov
+
+# Editor/IDEs
+.idea
+*.swp
+
+# Python
+*venv*
+__pycache__
+.python-version
+
+# Misc
+.*cache
+.DS_Store

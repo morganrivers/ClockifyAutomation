@@ -1,6 +1,6 @@
 import warnings
 import datetime
-from datetime import timedelta
+from datetime import timedelta, timezone
 import arrow
 from ics import Event, Calendar
 import numpy as np
@@ -24,6 +24,9 @@ def main():
         "seconds_per_timeblock_threshold"
     ]
 
+    year = dict(params.items())["year"]
+    month_of_interest = dict(params.items())["month_of_interest"]
+
     df = pd.read_csv(INPUT_COMBINED_LOCATION)
 
     df_sorted = df.sort_values(by="start_timestamp")
@@ -37,10 +40,24 @@ def main():
     time_start = (
         df_sorted.loc[0].start_timestamp - df_sorted.loc[0].start_timestamp % blk
     )
+    # time_end = (
+    #     df_sorted.loc[len(df_sorted) - 1].start_timestamp
+    #     - df_sorted.loc[0].start_timestamp % blk
+    #     + blk
+    # )
     time_end = (
-        df_sorted.loc[len(df_sorted) - 1].start_timestamp
-        - df_sorted.loc[0].start_timestamp % blk
-        + blk
+        datetime.datetime(
+            year + month_of_interest // 12,
+            (month_of_interest + 1) % 12,
+            1,
+            0,
+            0,
+            0,
+            0,
+            tzinfo=timezone.utc,
+        )
+        .replace(microsecond=0)
+        .timestamp()
     )
     df_new = pd.DataFrame()
     for i in range(0, int(np.floor(time_end - time_start) / blk)):
