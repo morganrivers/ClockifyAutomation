@@ -14,10 +14,6 @@ div
 
   hr
 
-  LandingPageSettings
-
-  hr
-
   Theme
 
   hr
@@ -44,7 +40,6 @@ import DaystartSettings from '~/views/settings/DaystartSettings.vue';
 import TimelineDurationSettings from '~/views/settings/TimelineDurationSettings.vue';
 import ReleaseNotificationSettings from '~/views/settings/ReleaseNotificationSettings.vue';
 import CategorizationSettings from '~/views/settings/CategorizationSettings.vue';
-import LandingPageSettings from '~/views/settings/LandingPageSettings.vue';
 import DeveloperSettings from '~/views/settings/DeveloperSettings.vue';
 import Theme from '~/views/settings/Theme.vue';
 import ColorSettings from '~/views/settings/ColorSettings.vue';
@@ -56,7 +51,6 @@ export default {
     TimelineDurationSettings,
     ReleaseNotificationSettings,
     CategorizationSettings,
-    LandingPageSettings,
     Theme,
     ColorSettings,
     DeveloperSettings,
