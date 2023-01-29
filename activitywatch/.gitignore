@@ -3,7 +3,7 @@ dist
 docs
 other
 old
-
+*.~lock*
 # Coverage
 *coverage*
 htmlcov
