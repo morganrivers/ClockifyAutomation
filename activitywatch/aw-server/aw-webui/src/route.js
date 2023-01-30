@@ -12,7 +12,7 @@ const Bucket = () => import('./views/Bucket.vue');
 const QueryExplorer = () => import('./views/QueryExplorer.vue');
 const Trends = () => import('./views/Trends.vue');
 const Settings = () => import('./views/settings/Settings.vue');
-const Stopwatch = () => import('./views/Stopwatch.vue');
+const Categorization = () => import('./views/Categorization.vue');
 const Alerts = () => import('./views/Alerts.vue');
 const Search = () => import('./views/Search.vue');
 const Report = () => import('./views/Report.vue');
@@ -61,7 +61,7 @@ const router = new VueRouter({
     { path: '/alerts', component: Alerts },
     { path: '/timespiral', component: TimespiralView },
     { path: '/settings', component: Settings },
-    { path: '/stopwatch', component: Stopwatch },
+    { path: '/categorization', component: Categorization },
     { path: '/search', component: Search },
     { path: '/graph', component: Graph },
     { path: '/dev', component: Dev },
