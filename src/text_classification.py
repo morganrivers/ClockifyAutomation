@@ -2,15 +2,14 @@ import pandas as pd
 import spacy
 
 # from spacy.pipeline.textcat import DEFAULT_TEXTCAT_MODEL
+
 from spacy.training import Example
 from spacy.util import minibatch, compounding
 
 # load the training data
 
 window_titles = pd.read_csv("test_data/training_data.csv", delimiter=";", decimal=",")
-print("window_titles")
-print(window_titles)
-quit()
+
 import en_core_web_sm
 
 nlp = en_core_web_sm.load()
