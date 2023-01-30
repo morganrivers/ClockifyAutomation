@@ -34,11 +34,15 @@ div(:class="{'fixed-top-padding': fixedTopMenu}")
             icon(:name="view.icon")
             | {{ view.name }}
 
+        b-nav-item(to="/categorization")
+          div.px-2.px-lg-1
+            icon(name="cog")
+            | Categorization
+
       // Brand on large screens (centered)
       b-navbar-nav.abs-center.d-none.d-lg-block
         b-navbar-brand(to="/" style="background-color: transparent;")
-          img.ml-0.aligh-middle(src="/static/logo.png" style="height: 1.5em;")
-          span.ml-2.align-middle(style="font-size: 1.0em; color: #000;") ActivityWatch
+          span.ml-2.align-middle(style="font-size: 1.0em; color: #000;") Hourly (HourTrack?)
 
       b-navbar-nav.ml-auto
         b-nav-item(to="/settings")
