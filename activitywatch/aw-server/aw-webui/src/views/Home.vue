@@ -61,6 +61,32 @@ div
         | Check out the #[a(href="https://forum.activitywatch.net/c/news") development updates]!
 
   hr
+  
+  div
+    h3 {{ id }}
+    table
+      tr
+        th Type:
+        td {{ bucket.type }}
+      tr
+        th Client:
+        td {{ bucket.client }}
+      tr
+        th Hostname:
+        td {{ bucket.hostname }}
+      tr
+        th Created:
+        td {{ bucket.created | iso8601 }}
+      tr(v-if="bucket.metadata")
+        th First/last event:
+        td
+          | {{ bucket.metadata.start}} /
+          | {{ bucket.metadata.end }}
+      tr
+        th Eventcount:
+        td {{ eventcount }}
+
+  hr
 
   p
     small
@@ -73,4 +99,27 @@ div
 export default {
   name: 'Home',
 };
+
+const ListItem = {
+  props: [
+    'text'
+  ],
+  template: "<div> {{ text }} </div>",
+}
+
+const vm = new Vue({
+  el: '#vue-instance',
+
+  components: {
+    listitem: ListItem
+  },
+  data: {
+    elements: []
+  },
+  methods: {
+    addElement: function() {
+      this.elements.push("This is a new instance")
+    }
+  }
+});
 </script>
