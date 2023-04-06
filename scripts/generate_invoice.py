@@ -197,7 +197,7 @@ output = """
                 </tr>
 
                 <tr class="item last">
-                    <td>Compensation, month of """+month_for_invoice+"""</td>
+                    <td>Research Associate Compensation, month of """+month_for_invoice+""", """+current_year+"""</td>
                     <td></td>
                     <td>"""+total_hours+""" hours</td>
                     <td>$"""+hourly_rate+"""</td>
@@ -226,3 +226,4 @@ f.close()
 
 #convert to pdf
 pdfkit.from_file(html_filename, pdf_filename)
+

@@ -37,28 +37,40 @@ def main():
 
     # use the majority amount of time in the block to assign the proper time code.
     # if less than blk seconds total in that block, do not assign time to it.
-    time_start = (
-        df_sorted.loc[0].start_timestamp - df_sorted.loc[0].start_timestamp % blk
+    # time_start = (
+    #     df_sorted.loc[0].start_timestamp - df_sorted.loc[0].start_timestamp % blk
+    # )
+
+    start_date_raw = datetime.datetime(
+        year,
+        month_of_interest,
+        1,  # day of month
+        tzinfo=timezone.utc,
     )
+    end_date_raw = datetime.datetime(
+        year + month_of_interest // 12,
+        (month_of_interest) % 12 + 1,
+        1,
+        0,
+        0,
+        0,
+        0,
+        tzinfo=timezone.utc,
+    )
+
+    start_date = start_date_raw.date()
+
+    time_start = start_date_raw.replace(microsecond=0).timestamp()
+
     # time_end = (
     #     df_sorted.loc[len(df_sorted) - 1].start_timestamp
     #     - df_sorted.loc[0].start_timestamp % blk
     #     + blk
     # )
-    time_end = (
-        datetime.datetime(
-            year + month_of_interest // 12,
-            (month_of_interest + 1) % 12,
-            1,
-            0,
-            0,
-            0,
-            0,
-            tzinfo=timezone.utc,
-        )
-        .replace(microsecond=0)
-        .timestamp()
-    )
+
+    end_date = end_date_raw.date()
+    time_end = end_date_raw.replace(microsecond=0).timestamp()
+
     df_new = pd.DataFrame()
     for i in range(0, int(np.floor(time_end - time_start) / blk)):
         time_block_start = time_start + i * blk
@@ -177,12 +189,16 @@ def main():
         overall_delta += event.end - event.begin
 
         week_index = event.begin.isocalendar()[1]  # gets the week index in question
+        if index == 0:
+            print("time start")
+            print(event.begin.isocalendar())
+            print(event.begin.isocalendar())
         if week_index != previous_week_index and previous_week_index != 0:
             print(
                 "week "
                 + str(week_index - 1)
                 + " hours: \n"
-                + str(this_week_hours.total_seconds() // (60 * 60))
+                + str(this_week_hours.total_seconds() / (60 * 60))
                 + "\n"
             )
 
@@ -200,10 +216,10 @@ def main():
         previous_week_index = week_index
 
     print("last week (index " + str(week_index) + ") total hours:")
-    print(this_week_hours.total_seconds() // (60 * 60))
+    print(this_week_hours.total_seconds() / (60 * 60))
     print("")
 
-    total_hours_worked = overall_delta.total_seconds() // (
+    total_hours_worked = overall_delta.total_seconds() / (
         60 * 60
     )  # total duration in seconds to hours (60 seconds in min, 60 min in hour)
 
@@ -211,12 +227,26 @@ def main():
     print("Total Hours worked in time period in question:")
     print(total_hours_worked)
 
-    total_weeks_window = (time_end - time_start) // (
+    total_weeks_window = (time_end - time_start) / (
         60 * 60 * 24 * 7
     )  # total duration in units 7*24 hours
 
-    print("Average hours per 7*24 hour (1 week) time period:")
-    print(total_hours_worked / total_weeks_window)
+    # https://stackoverflow.com/questions/56005112/how-to-find-a-number-of-workdays-between-two-dates-in-python
+    weekdays = np.busday_count(start_date, end_date)
+    print("total M-F workdays")
+    print(weekdays)
+    print("effective number of weeks this month (weekdays/5)")
+    print(weekdays / 5)
+
+    print("Average hours per 5 day work week")
+    print("this is: (total_hours_worked / weekdays) * 5, holidays ignored")
+    print((total_hours_worked / weekdays) * 5)
+
+    print("weekdays * 8: " + str(weekdays * 8))
+    print(
+        "Hours that would remain until meeting a 40 hour week (weekdays * 8 - total_hours_worked):"
+    )
+    print(weekdays * 8 - total_hours_worked)
     print("NOTE: BILLABLE HOURS AND NONBILLABLE HOURS ARE COMBINED FOR NUMBERS ABOVE")
     with open(OUTPUT_CHUNKED_EVENTS_ICS_LOCATION, "w") as f:
         f.write(str(new_calendar))

@@ -1,4 +1,3 @@
-from csv_ical import Convert
 import pandas as pd
 from ics import Calendar, Event
 from datetime import datetime, timedelta, timezone
@@ -30,6 +29,7 @@ def main():
     YOUR_EMAIL = your_email
     YEAR = year
     MONTH_OF_INTEREST = month_of_interest
+
     # classify a calendar event and return category's description,
     # project, billable
     def classify(summary):
@@ -69,7 +69,6 @@ def main():
     new_calendar = Calendar()
 
     for event in cal.events:
-
         start = event.begin.datetime
         end = event.end.datetime
         if start is None:

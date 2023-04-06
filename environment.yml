@@ -1,12 +1,12 @@
-name: hourly
+name: clockify_automation3
 channels:
-  - anaconda
-  - conda-forge
   - defaults
 dependencies:
-  - python=3.9
-  - nodejs
+  - python=3.8
+  - ics
   - ca-certificates
   - certifi
   - openssl
-  - poetry
+  - icalendar
+  - requests
+  - pandas

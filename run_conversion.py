@@ -41,7 +41,10 @@ if aw_response[0].lower() == "y":
     aw = (
         askopenfilename()
     )  # show an "Open" dialog box and return the path to the selected file
-    print("Location " + aw + " chosen")
+    if len(aw) == 0:
+        print("ERROR: cancelled dialog")
+        quit()
+    print("Location " + str(aw) + " chosen")
 else:
     aw = "../data/aw-category-export.json"
     print("Default location data/aw-category-export.json chosen")
