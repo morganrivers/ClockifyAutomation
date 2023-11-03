@@ -33,25 +33,67 @@ def main():
     MONTH_OF_INTEREST = month_of_interest
     DAY_RANGE = day_range
 
-    # classify a calendar event and return category's description,
-    # project, billable
+    def update_categories(new_category, data, JSON_CATEGORIES_LOCATION):
+        """Updates the categories JSON file with a new category."""
+        with open(JSON_CATEGORIES_LOCATION, "w") as f:
+            json.dump(data, f, indent=4)
+
+    def get_project_selection(data, new_project):
+        """Returns a list of categories associated with the given project ID."""
+        associated_categories = []
+        for name, details in data.get("categories", {}).items():
+            if details["project"] == new_project:
+                associated_categories.append(f'"{name}"')
+        return ", ".join(associated_categories)
+
     def classify(summary):
         slow = summary.lower()
-        cats = dict(dict(data.items())["categories"].items())
+        default = data["default"]
+        cats = data["categories"]
         for k, i in cats.items():
-            if (slow in k.lower()) or (k.lower() in slow):
-                description = i["description"]
-                project = i["project"]
-                billable = i["billable"]
-                return (description, project, billable)
+            if slow in k.lower() or k.lower() in slow:
+                return (i["description"], i["project"], i["billable"])
 
-        print("unmatched calendar item")
+        print("Unmatched calendar item")
         print(summary)
         print("")
 
-        # none of the summary matched the categories
-        default = dict(dict(data.items())["default"].items())
-        return (default["description"], default["project"], default["billable"])
+        entered_description = input(
+            "Enter the description for this event, or just hit enter to always categorize this as a default generic research project: "
+        )
+        if entered_description == "":
+            new_description = default["description"]
+            new_project = default["project"]
+            new_billable = default["billable"]
+        else:
+            new_description = entered_description
+            while True:
+                new_project = input("Enter the project ID for this event, or type 'list' to see existing categories: ")
+                if new_project == "list":
+                    print("Here are the existing categories for each project ID:")
+                    for project_id in set(details["project"] for details in cats.values()):
+                        associated_categories = get_project_selection(data, project_id)
+                        print(f"{project_id}: {associated_categories}")
+                else:
+                    break
+            new_billable = input("Is this event billable? (True/False): ")
+
+        # Update the categories with the new user-provided information
+        new_category = {summary: {"description": new_description, "project": new_project, "billable": new_billable}}
+        data["categories"].update(new_category)
+
+        update_categories(new_category, data, JSON_CATEGORIES_LOCATION)
+
+        print("")
+        print("New category added to the gcal filter json successfully!")
+        print(new_category)
+        print("")
+
+        return (
+            new_category[summary]["description"],
+            new_category[summary]["project"],
+            new_category[summary]["billable"],
+        )
 
     g = open(INPUT_CALENDAR_LOCATION, "rb")
     text = g.read()
@@ -121,16 +163,11 @@ def main():
         description, project, billable = classify(summary)
 
         # if this is a personal, then the description, project, and billable are all as follows
-        if project == "personal" and not billable:
+        if project == "personal" and not (billable.lower() == "true"):
             print("")
             print("IGNORING " + description + " as it is not work related.")
             print("")
             continue
-
-        if billable:
-            b_string = "true"
-        else:
-            b_string = "false"
 
         df_start_timestamp.append(startdt_utc.timestamp())
         df_end_timestamp.append(enddt_utc.timestamp())
@@ -139,13 +176,13 @@ def main():
 
         df_project.append(project)
         df_description.append(description)
-        df_billable.append(b_string)
+        df_billable.append(billable.lower())
 
         i = i + 1
 
         # create copy of calendar for ease of error checking
         event = Event()
-        if billable:
+        if billable.lower() == "true":
             event.name = description + " " + project + " bill"
         else:
             event.name = description + " " + project + " no bill"
