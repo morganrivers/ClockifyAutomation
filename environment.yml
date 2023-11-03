@@ -1,4 +1,4 @@
-name: clockify_automation3
+name: clockify_automation
 channels:
   - defaults
 dependencies:
@@ -10,3 +10,4 @@ dependencies:
   - icalendar
   - requests
   - pandas
+  - python-pdfkit

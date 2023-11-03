@@ -27,21 +27,17 @@ def main(UNFILTERED_GCAL_LOCATION):
     ):
         # this is a secret http address, not a file. It's defined in data/params.json
         URL = dict(params.items())["secret_google_calendar_address"]
-
         # defining a params dict for the parameters to be sent to the API
         PARAMS = {}
 
         # sending get request and saving the response as response object
         r = requests.get(url=URL, params=PARAMS)
-
         # extracting data in string format
         json_data = r.text
     else:
-
         # read google calendar info from dowloaded exported file
         with open(UNFILTERED_GCAL_LOCATION, "r", encoding="utf-8") as f:
             json_data = f.read()
-
     cal = icalendar.Calendar.from_ical(json_data)
     outcal = icalendar.Calendar()
 

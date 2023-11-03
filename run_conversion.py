@@ -8,6 +8,10 @@ from src import combine_csvs
 from src import chunk_time
 from src import put_csv_through_api
 
+import json
+
+JSON_PARAMETERS_LOCATION = "../data/params.json"
+
 os.chdir("src")
 
 # import the gcal and aw files
@@ -32,7 +36,7 @@ elif gcal_response[0].lower() == "p":
     print("Location " + gcal + " chosen")
 
 else:
-    gcal = "../data/gcal.ics"
+    gcal = "../data/morgan@allfed.info.ics"
     print("Default location data/gcal.ics chosen")
 print("")
 print("File picker for activitywatch json? ( y / n )")
@@ -51,6 +55,16 @@ else:
 print("")
 
 while True:
+    params = json.load(open(JSON_PARAMETERS_LOCATION, "r"))
+    year = dict(params.items())["year"]
+    month_of_interest = dict(params.items())["month_of_interest"]
+    print("year: " + str(year))
+    print("month_of_interest: " + str(month_of_interest))
+    print("day range:" + str(dict(params.items())["day_range"]))
+    print(
+        'Day range is first to last day inclusive, and also you can put "all" as well for the whole month'
+    )
+    print()
     # run the import script, combining google calendar (ics) and activity watch.
     filter_ical.main(gcal)
     aw_to_csv.main(aw)

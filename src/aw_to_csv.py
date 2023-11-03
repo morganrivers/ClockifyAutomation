@@ -12,6 +12,8 @@ import aw_query
 
 import json
 
+import calendar
+
 CLOCKIFY_CATEGORIES_LOCATION = "../data/aw-category-export.json"
 JSON_PARAMETERS_LOCATION = "../data/params.json"
 OUTPUT_CSV_LOCATION = "../data/activitywatch_output_raw.csv"
@@ -27,7 +29,30 @@ class DateTimeEncoder(json.JSONEncoder):
             return super().default(z)
 
 
-def get_window_events_this_month(YEAR, MONTH_OF_INTEREST):
+def calculate_start_end_dates(year, month_of_interest, day_range):
+    start_day = day_range[0]
+    end_day = day_range[1]
+    start_date_raw = datetime(
+        year,
+        month_of_interest,
+        start_day,
+        tzinfo=timezone.utc,
+    )
+    end_date_raw = datetime(
+        year + month_of_interest // 12,
+        month_of_interest,
+        end_day,
+        23,  # End of the day
+        59,
+        59,
+        999999,  # Maximum microsecond value
+        tzinfo=timezone.utc,
+    )
+
+    return start_date_raw, end_date_raw
+
+
+def get_window_events_over_period(YEAR, MONTH_OF_INTEREST, DAY_RANGE):
     client = ActivityWatchClient("test-client", testing=False)
 
     all_afk = client.export_all()["buckets"]["aw-watcher-afk_snailshale"]
@@ -67,17 +92,21 @@ def get_window_events_this_month(YEAR, MONTH_OF_INTEREST):
     print(len(window_events))
 
     # exclude all events not during the month of interest
-    start = datetime(YEAR, MONTH_OF_INTEREST, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
-    end = datetime(
-        YEAR + MONTH_OF_INTEREST // 12,
-        (MONTH_OF_INTEREST + 1) % 12,
-        1,
-        0,
-        0,
-        0,
-        0,
-        tzinfo=timezone.utc,
-    )
+    if DAY_RANGE == "all":
+        start = datetime(YEAR, MONTH_OF_INTEREST, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
+        end = datetime(
+            YEAR + MONTH_OF_INTEREST // 12,
+            (MONTH_OF_INTEREST + 1) % 12,
+            1,
+            0,
+            0,
+            0,
+            0,
+            tzinfo=timezone.utc,
+        )
+    else:
+        # DAY_RANGE are consecutive integers of the month that we are interested in
+        start, end = calculate_start_end_dates(YEAR, MONTH_OF_INTEREST, DAY_RANGE)
     seconds = (end - start).total_seconds()
 
     # whole_month = Event(
@@ -87,13 +116,13 @@ def get_window_events_this_month(YEAR, MONTH_OF_INTEREST):
     # whole_month = Event(
     #     timestamp=start, duration=timedelta(seconds=seconds), data={"status": "not-afk"}
     # )
-    window_events_this_month = filter_period_intersect(window_events, [whole_month])
+    window_events_in_period = filter_period_intersect(window_events, [whole_month])
     # ^^ out of curiousity... if the afk is failing... how much better do we do?
 
     with open("../data/aw_buckets.json", "w", encoding="utf-8") as jsonf:
-        jsonf.write(json.dumps(window_events_this_month, indent=4, cls=DateTimeEncoder))
+        jsonf.write(json.dumps(window_events_in_period, indent=4, cls=DateTimeEncoder))
 
-    return window_events_this_month
+    return window_events_in_period
 
 
 def get_rules():
@@ -115,26 +144,29 @@ def get_rules():
 
 
 def main(UNPROCESSED_AW_LOCATION):
-
     params = json.load(open(JSON_PARAMETERS_LOCATION, "r"))
 
     hours_off_utc = dict(params.items())["hours_off_utc"]
     year = dict(params.items())["year"]
     month_of_interest = dict(params.items())["month_of_interest"]
+    day_range = dict(params.items())["day_range"]
     aw_work_tree_root = dict(params.items())["aw_work_tree_root"]
 
     MONTH_OF_INTEREST = month_of_interest
+    DAY_RANGE = day_range
     YEAR = year
     HOURS_OFF_UTC = hours_off_utc
 
-    window_events_this_month = get_window_events_this_month(YEAR, MONTH_OF_INTEREST)
+    window_events_over_period = get_window_events_over_period(
+        YEAR, MONTH_OF_INTEREST, DAY_RANGE
+    )
 
-    print("len(window_events_this_month)")
-    print(len(window_events_this_month))
+    print("len(window_events_over_period)")
+    print(len(window_events_over_period))
 
     rules = get_rules()
 
-    categorized = aw_transform.categorize(window_events_this_month, rules)
+    categorized = aw_transform.categorize(window_events_over_period, rules)
 
     # now we categorize all the existing timesheet data with the correct project, category, description, billable, attended
 
@@ -148,7 +180,6 @@ def main(UNPROCESSED_AW_LOCATION):
     df_description = []
     df_billable = []
     for cz in categorized:
-
         # not really sure why, but the parent's name doesn't seem to change, it should be Research - Miscellaneous*Research*Uncategorized research for ALLFED*Yes, but it's just "ALLFED"
 
         if cz["data"]["$category"][0] == "Uncategorized":

@@ -6,6 +6,101 @@ from ics import Event, Calendar
 import numpy as np
 import json
 import pandas as pd
+import calendar
+
+
+def calculate_start_end_dates(year, month_of_interest, day_range):
+    if day_range == "all":
+        start_date_raw = datetime.datetime(
+            year,
+            month_of_interest,
+            1,  # day of month
+            tzinfo=timezone.utc,
+        )
+        end_date_raw = datetime.datetime(
+            year + month_of_interest // 12,
+            (month_of_interest) % 12 + 1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            tzinfo=timezone.utc,
+        )
+
+        return start_date_raw, end_date_raw
+
+    start_day = day_range[0]
+    end_day = day_range[1]
+
+    start_date_raw = datetime.datetime(
+        year,
+        month_of_interest,
+        start_day,
+        tzinfo=timezone.utc,
+    )
+    end_date_raw = datetime.datetime(
+        year + month_of_interest // 12,
+        (month_of_interest),
+        end_day,
+        23,  # End of the day
+        59,
+        59,
+        999999,  # Maximum microsecond value
+        tzinfo=timezone.utc,
+    )
+
+    return start_date_raw, end_date_raw
+
+
+def print_summary_for_user(
+    week_index,
+    this_week_hours,
+    overall_delta,
+    time_end,
+    time_start,
+    start_date,
+    end_date,
+    year,
+    month_of_interest,
+    day_range,
+):
+    # print("last week (index " + str(week_index) + ") total hours:")
+    # print(this_week_hours.total_seconds() / (60 * 60))
+    # print("")
+    print("year: " + str(year))
+    print("month_of_interest: " + str(month_of_interest))
+    print("day range:" + str(day_range))
+
+    total_hours_worked = overall_delta.total_seconds() / (
+        60 * 60
+    )  # total duration in seconds to hours (60 seconds in min, 60 min in hour)
+
+    print("")
+    print("Total Hours worked in time period in question:")
+    print(total_hours_worked)
+
+    total_weeks_window = (time_end - time_start) / (
+        60 * 60 * 24 * 7
+    )  # total duration in units 7*24 hours
+
+    # https://stackoverflow.com/questions/56005112/how-to-find-a-number-of-workdays-between-two-dates-in-python
+    weekdays = np.busday_count(start_date, end_date)
+    print("total M-F workdays")
+    print(weekdays)
+    print("effective number of weeks considered (weekdays/5)")
+    print(weekdays / 5)
+
+    print("Average hours per 5 day work week")
+    print("this is: (total_hours_worked / weekdays) * 5, holidays ignored")
+    print((total_hours_worked / weekdays) * 5)
+
+    print("weekdays * 8: " + str(weekdays * 8))
+    print(
+        "Hours that would remain until meeting a 40 hour week (weekdays * 8 - total_hours_worked):"
+    )
+    print(weekdays * 8 - total_hours_worked)
+    print("NOTE: BILLABLE HOURS AND NONBILLABLE HOURS ARE COMBINED FOR NUMBERS ABOVE")
 
 
 def main():
@@ -26,6 +121,7 @@ def main():
 
     year = dict(params.items())["year"]
     month_of_interest = dict(params.items())["month_of_interest"]
+    day_range = dict(params.items())["day_range"]
 
     df = pd.read_csv(INPUT_COMBINED_LOCATION)
 
@@ -40,22 +136,8 @@ def main():
     # time_start = (
     #     df_sorted.loc[0].start_timestamp - df_sorted.loc[0].start_timestamp % blk
     # )
-
-    start_date_raw = datetime.datetime(
-        year,
-        month_of_interest,
-        1,  # day of month
-        tzinfo=timezone.utc,
-    )
-    end_date_raw = datetime.datetime(
-        year + month_of_interest // 12,
-        (month_of_interest) % 12 + 1,
-        1,
-        0,
-        0,
-        0,
-        0,
-        tzinfo=timezone.utc,
+    start_date_raw, end_date_raw = calculate_start_end_dates(
+        year, month_of_interest, day_range
     )
 
     start_date = start_date_raw.date()
@@ -189,65 +271,47 @@ def main():
         overall_delta += event.end - event.begin
 
         week_index = event.begin.isocalendar()[1]  # gets the week index in question
-        if index == 0:
-            print("time start")
-            print(event.begin.isocalendar())
-            print(event.begin.isocalendar())
-        if week_index != previous_week_index and previous_week_index != 0:
-            print(
-                "week "
-                + str(week_index - 1)
-                + " hours: \n"
-                + str(this_week_hours.total_seconds() / (60 * 60))
-                + "\n"
-            )
 
-            # we are starting a new week!
-            this_week_hours = timedelta(0)
+        start_day = day_range[0]
+        end_day = day_range[1]
+        if day_range == "all" or (
+            event.begin.day >= start_day and event.begin.day <= end_day
+        ):  # process only for weeks of interest
+            if week_index != previous_week_index and previous_week_index != 0:
+                print(
+                    "week "
+                    + str(week_index - 1)
+                    + " hours: \n"
+                    + str(this_week_hours.total_seconds() / (60 * 60))
+                    + "\n"
+                )
 
-        this_week_hours += event.end - event.begin
-        # print("Total Hours worked in each week")
-        # print(
-        #     overall_delta.total_seconds() // (60 * 60)
-        # )  # to hours (60 seconds in min, 60 min in h)
+                # we are starting a new week!
+                this_week_hours = timedelta(0)
 
-        new_calendar.events.add(event)
+            this_week_hours += event.end - event.begin
+            # print("Total Hours worked in each week")
+            # print(
+            #     overall_delta.total_seconds() // (60 * 60)
+            # )  # to hours (60 seconds in min, 60 min in h)
+
+            new_calendar.events.add(event)
 
         previous_week_index = week_index
 
-    print("last week (index " + str(week_index) + ") total hours:")
-    print(this_week_hours.total_seconds() / (60 * 60))
-    print("")
-
-    total_hours_worked = overall_delta.total_seconds() / (
-        60 * 60
-    )  # total duration in seconds to hours (60 seconds in min, 60 min in hour)
-
-    print("")
-    print("Total Hours worked in time period in question:")
-    print(total_hours_worked)
-
-    total_weeks_window = (time_end - time_start) / (
-        60 * 60 * 24 * 7
-    )  # total duration in units 7*24 hours
-
-    # https://stackoverflow.com/questions/56005112/how-to-find-a-number-of-workdays-between-two-dates-in-python
-    weekdays = np.busday_count(start_date, end_date)
-    print("total M-F workdays")
-    print(weekdays)
-    print("effective number of weeks this month (weekdays/5)")
-    print(weekdays / 5)
-
-    print("Average hours per 5 day work week")
-    print("this is: (total_hours_worked / weekdays) * 5, holidays ignored")
-    print((total_hours_worked / weekdays) * 5)
-
-    print("weekdays * 8: " + str(weekdays * 8))
-    print(
-        "Hours that would remain until meeting a 40 hour week (weekdays * 8 - total_hours_worked):"
+    print_summary_for_user(
+        week_index,
+        this_week_hours,
+        overall_delta,
+        time_end,
+        time_start,
+        start_date,
+        end_date,
+        year,
+        month_of_interest,
+        day_range,
     )
-    print(weekdays * 8 - total_hours_worked)
-    print("NOTE: BILLABLE HOURS AND NONBILLABLE HOURS ARE COMBINED FOR NUMBERS ABOVE")
+
     with open(OUTPUT_CHUNKED_EVENTS_ICS_LOCATION, "w") as f:
         f.write(str(new_calendar))
 

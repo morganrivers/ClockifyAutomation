@@ -80,6 +80,9 @@ https://github.com/ActivityWatch/aw-import-ical/blob/master/main.py
         $ calcurse -i data/gcal_shortened.ics;calcurse
         and you'll see both)
 
+        USEFUL COMMAND:
+        calcurse -P; calcurse -i chunked_events.ics ; calcurse
+
 2. Alter the month and year of filter_ical.py. Run filter_ical.py. Creates gcal_shortened.ics with just the one month of calendar events.
 3. Run aw_to_csv.py. The resulting csv is in 'data/activitywatch_output_raw.csv', 
 5. Alter 'gcal_to_csv.py' to include reasonable capture conditions for categorizing the google meets.

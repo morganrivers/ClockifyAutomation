@@ -1,6 +1,7 @@
 import pandas as pd
 from ics import Calendar, Event
-from datetime import datetime, timedelta, timezone
+import datetime
+from datetime import timedelta, timezone
 from dateutil import tz
 import pytz
 import arrow
@@ -23,12 +24,14 @@ def main():
     hours_off_utc = dict(params.items())["hours_off_utc"]
     your_email = dict(params.items())["your_email"]
     month_of_interest = dict(params.items())["month_of_interest"]
+    day_range = dict(params.items())["day_range"]
     year = dict(params.items())["year"]
 
     HOURS_OFF_UTC = hours_off_utc
     YOUR_EMAIL = your_email
     YEAR = year
     MONTH_OF_INTEREST = month_of_interest
+    DAY_RANGE = day_range
 
     # classify a calendar event and return category's description,
     # project, billable
@@ -86,6 +89,14 @@ def main():
         if startdt.month != MONTH_OF_INTEREST or startdt.year != YEAR:
             continue
 
+        if DAY_RANGE != "all":
+            # Check if the week of the event's start date is in the list of weeks of interest
+            start_day = DAY_RANGE[0]
+            end_day = DAY_RANGE[1]
+            event_day = startdt.day
+            if event_day < start_day or event_day > end_day:
+                continue
+
         duration = enddt - startdt
 
         if duration.seconds / 60 / 60 >= 7:  # remove any really long events
@@ -108,6 +119,13 @@ def main():
 
         summary = event.name
         description, project, billable = classify(summary)
+
+        # if this is a personal, then the description, project, and billable are all as follows
+        if project == "personal" and not billable:
+            print("")
+            print("IGNORING " + description + " as it is not work related.")
+            print("")
+            continue
 
         if billable:
             b_string = "true"
