@@ -109,7 +109,7 @@ elif gcal_response[0].lower() == "p":
     print("Location " + gcal + " chosen")
 
 else:
-    gcal = "../data/morgan@allfed.info.ics"
+    gcal = "../data/gcal.ics"
     print("Default location data/gcal.ics chosen")
 print("")
 print("File picker for activitywatch json? ( y / n )")
