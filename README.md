@@ -1,5 +1,5 @@
 # HOW IT CURRENTLY WORKS
-
+(command line version)
 Need internet connection to run!
 
 1. Install activitywatch (https://activitywatch.net/).
