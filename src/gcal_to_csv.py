@@ -51,6 +51,8 @@ def main():
         default = data["default"]
         cats = data["categories"]
         for k, i in cats.items():
+            # print("cats keys -> item")
+            # print(str(k) + " -> " + str(i["description"]))
             if slow in k.lower() or k.lower() in slow:
                 return (i["description"], i["project"], i["billable"])
 
@@ -59,9 +61,16 @@ def main():
         print("")
 
         entered_description = input(
-            "Enter the description for this event, or just hit enter to always categorize this as a default generic research project: "
+            [
+                'Enter the description to show on the timesheet for this event, enter "p" for personal event (not work',
+                'related) or just hit enter to categorize this as "default generic research project": ',
+            ]
         )
-        if entered_description == "":
+        if entered_description == "p":
+            new_description = summary
+            new_project = "personal"
+            new_billable = "False"
+        elif entered_description == "":
             new_description = default["description"]
             new_project = default["project"]
             new_billable = default["billable"]

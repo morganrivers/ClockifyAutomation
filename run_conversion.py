@@ -8,6 +8,7 @@ from src import gcal_to_csv
 from src import combine_csvs
 from src import chunk_time
 from src import put_csv_through_api
+from src import gcal_API_to_csv
 
 import json
 
@@ -51,7 +52,8 @@ def get_custom_day_range():
 # Function to handle user input for month and day range
 def handle_user_input():
     print(
-        "Please enter 'j' for using the existing data/params.json month and day range, or 'm' for entering custom month and/or day range to use and update the params file"
+        "Please enter 'j' for using the existing data/params.json month and day range, or 'm' for entering custom \
+        month and/or day range to use and update the params file"
     )
     day_range = ""
     month_of_interest = -1
@@ -89,7 +91,7 @@ def handle_user_input():
 
 # import the gcal and aw files
 print(
-    """Google calendar access: load from secret gcal address in data/params ( s ), file 
+    """Google calendar access: load from gcal credentials ( c ), file 
     picker ( p ), or default location dowloaded ical ( d )"""
 )
 while True:
@@ -98,9 +100,9 @@ while True:
         print("Please type an input")
     else:
         break
-if gcal_response[0].lower() == "s":
+if gcal_response[0].lower() == "c":
     gcal = "use secret address in params (THIS IS NOT A FILE!) $,! :)"
-    print("Using secret address from data/params.json file.")
+    print("Using credentials.json file in ../data")
 elif gcal_response[0].lower() == "p":
     gcal = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
     assert type(gcal) == str, "Error: Must select a file!"
@@ -136,7 +138,10 @@ while True:
     print('Day range is first to last day inclusive, and also you can put "all" as well for the whole month')
     print()
     # run the import script, combining google calendar (ics) and activity watch.
-    filter_ical.main(gcal)
+    if gcal == "use secret address in params (THIS IS NOT A FILE!) $,! :)":
+        gcal_API_to_csv.main()
+    else:
+        filter_ical.main(gcal)
     get_aw_buckets.main()
     categorize_aw_events.main()
     gcal_to_csv.main()
