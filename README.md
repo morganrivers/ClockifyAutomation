@@ -24,11 +24,13 @@ Need internet connection to run!
         USEFUL COMMAND:
         calcurse -P; calcurse -i chunked_events.ics ; calcurse
 
-Now you're ready to run:
+Now you're ready to run. You'll need your clockify api key ready to paste in for this.
+
+Run in a terminal
 ```
 python3 run_conversion.py
 ```
 
-You'll need your clockify api key.
+Results should be online now. (Note:Don't upload to clockify twice! It will duplicate the records.)  
 
-Results should be online now. (Note:Don't put the same CSV online twice! It will duplicate the records.)  
+If you wish, you can also now fill in your preferred invoice parameters in data/invoice_params.json. You'll need to manually enter the month, hours that month, etc. It generates a pdf in data/ called "Invoice_[invoice number you entered].pdf".
