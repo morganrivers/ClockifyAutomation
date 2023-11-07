@@ -52,46 +52,73 @@ def calculate_start_end_dates(year, month_of_interest, day_range):
     return start_date_raw, end_date_raw
 
 
-def get_window_events_over_period(YEAR, MONTH_OF_INTEREST, DAY_RANGE):
+def parse_iso8601_time(timestamp):
+    # This function will parse an ISO 8601 formatted string into a datetime object
+    return datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+
+
+def get_window_events_over_period(year, month_of_interest, day_range, event_bucket_id, afk_bucket_id):
     # Construct the start and end datetime objects
-    if DAY_RANGE == "all":
-        start = datetime(YEAR, MONTH_OF_INTEREST, 1, tzinfo=timezone.utc)
+    if day_range == "all":
+        start = datetime(year, month_of_interest, 1, tzinfo=timezone.utc)
         end = datetime(
-            YEAR if MONTH_OF_INTEREST < 12 else YEAR + 1,
-            MONTH_OF_INTEREST + 1 if MONTH_OF_INTEREST < 12 else 1,
+            year if month_of_interest < 12 else year + 1,
+            month_of_interest + 1 if month_of_interest < 12 else 1,
             1,
             tzinfo=timezone.utc,
         )
     else:
-        # DAY_RANGE are consecutive integers of the month that we are interested in
-        start, end = calculate_start_end_dates(YEAR, MONTH_OF_INTEREST, DAY_RANGE)
+        # day_range are consecutive integers of the month that we are interested in
+        start, end = calculate_start_end_dates(year, month_of_interest, day_range)
 
     # Format the start and end times for the API call
     start_iso = start.isoformat()
     end_iso = end.isoformat()
 
-    # Specify bucket id
-    BUCKET_ID = "aw-watcher-window_snailshale"
-
     # Construct the API call
-    api_url = f"http://localhost:5600/api/0/buckets/{BUCKET_ID}/events"
+    event_api_url = f"http://localhost:5600/api/0/buckets/{event_bucket_id}/events"
+    afk_api_url = f"http://localhost:5600/api/0/buckets/{afk_bucket_id}/events"
     params = {"start": start_iso, "end": end_iso}
 
     # Fetch the data from the API
-    response = requests.get(api_url, params=params)
+    response_events = requests.get(event_api_url, params=params)
+    # Fetch the data from the API
+    response_afk = requests.get(afk_api_url, params=params)
 
     # Check if the request was successful
-    if response.status_code == 200:
-        events_data = response.json()
-        breakpoint()
-        # Process the events_data as required...
-        # This part of the code would depend on the structure of the returned JSON
-        # and how you need to process it.
+    if response_events.status_code == 200 and response_afk.status_code == 200:
+        data_events = response_events.json()
+        data_afk = response_afk.json()
 
-        # ...
+        # Convert the events from JSON into Event objects
+        window_events_in_period = []
+        for item in data_events:
+            # Parse the timestamp and duration from the item
+            timestamp = parse_iso8601_time(item["timestamp"])
+            duration = timedelta(seconds=item["duration"])
+
+            # Create an Event object
+            event = Event(timestamp=timestamp, duration=duration, data=item["data"])
+            window_events_in_period.append(event)
+
+        # Convert AFK events from JSON into Event objects
+        afk_events = [
+            Event(
+                timestamp=parse_iso8601_time(item["timestamp"]),
+                duration=timedelta(seconds=item["duration"]),
+                data={"status": item["data"]["status"]},
+            )
+            for item in data_afk
+        ]
+        not_afk_events = aw_query.functions.filter_keyvals(afk_events, "status", ["not-afk"])
+
+        # filter
+        window_events_in_period_not_afk = aw_query.functions.filter_period_intersect(
+            window_events_in_period, not_afk_events
+        )
 
         # Return the final list of event objects
-        return window_events_in_period
+        return window_events_in_period_not_afk
     else:
         print(
             "Uh oh. You probably don't have the right watcher window id or you didn't start activitywatch before \
@@ -100,7 +127,7 @@ def get_window_events_over_period(YEAR, MONTH_OF_INTEREST, DAY_RANGE):
         raise Exception(f"Failed to fetch data: {response.status_code}, {response.text}")
 
 
-# def get_window_events_over_period(YEAR, MONTH_OF_INTEREST, DAY_RANGE):
+# def get_window_events_over_period(year, month_of_interest, day_range, event_bucket_id, afk_bucket_id):
 #     client = ActivityWatchClient("test-client", testing=False)
 
 #     print("exporting afk data..")
@@ -138,6 +165,7 @@ def get_window_events_over_period(YEAR, MONTH_OF_INTEREST, DAY_RANGE):
 
 #         events.append(e)
 
+
 #     window_events = aw_query.functions.filter_period_intersect(events, not_afk_events)
 #     breakpoint()
 #     # window_events = events
@@ -147,11 +175,11 @@ def get_window_events_over_period(YEAR, MONTH_OF_INTEREST, DAY_RANGE):
 #     print(len(window_events))
 
 #     # exclude all events not during the month of interest
-#     if DAY_RANGE == "all":
-#         start = datetime(YEAR, MONTH_OF_INTEREST, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
+#     if day_range == "all":
+#         start = datetime(year, month_of_interest, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
 #         end = datetime(
-#             YEAR + MONTH_OF_INTEREST // 12,
-#             (MONTH_OF_INTEREST + 1) % 12,
+#             year + month_of_interest // 12,
+#             (month_of_interest + 1) % 12,
 #             1,
 #             0,
 #             0,
@@ -160,8 +188,8 @@ def get_window_events_over_period(YEAR, MONTH_OF_INTEREST, DAY_RANGE):
 #             tzinfo=timezone.utc,
 #         )
 #     else:
-#         # DAY_RANGE are consecutive integers of the month that we are interested in
-#         start, end = calculate_start_end_dates(YEAR, MONTH_OF_INTEREST, DAY_RANGE)
+#         # day_range are consecutive integers of the month that we are interested in
+#         start, end = calculate_start_end_dates(year, month_of_interest, day_range)
 #     seconds = (end - start).total_seconds()
 
 #     # whole_month = Event(
@@ -185,14 +213,14 @@ def main():
     year = dict(params.items())["year"]
     month_of_interest = dict(params.items())["month_of_interest"]
     day_range = dict(params.items())["day_range"]
-
-    MONTH_OF_INTEREST = month_of_interest
-    DAY_RANGE = day_range
-    YEAR = year
+    event_bucket_id = dict(params.items())["event_bucket_id"]
+    afk_bucket_id = dict(params.items())["afk_bucket_id"]
 
     print("")
     print("getting windowed AW events from python binding..")
-    window_events_over_period = get_window_events_over_period(YEAR, MONTH_OF_INTEREST, DAY_RANGE)
+    window_events_over_period = get_window_events_over_period(
+        year, month_of_interest, day_range, event_bucket_id, afk_bucket_id
+    )
 
     print("")
     print("writing windowed AW events to json..")

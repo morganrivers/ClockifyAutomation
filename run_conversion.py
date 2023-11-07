@@ -36,9 +36,7 @@ def get_custom_day_range():
             return "all"
         else:
             try:
-                day_range_list = json.loads(
-                    day_range_input
-                )  # Convert string input to list
+                day_range_list = json.loads(day_range_input)  # Convert string input to list
                 if (
                     isinstance(day_range_list, list)
                     and len(day_range_list) == 2
@@ -46,13 +44,9 @@ def get_custom_day_range():
                 ):
                     return day_range_list
                 else:
-                    print(
-                        "Invalid format or range. Please enter a valid day range, or 'all'."
-                    )
+                    print("Invalid format or range. Please enter a valid day range, or 'all'.")
             except (json.JSONDecodeError, ValueError):
-                print(
-                    "Invalid input. Please enter the day range in format [n1,n2] or 'all'."
-                )
+                print("Invalid input. Please enter the day range in format [n1,n2] or 'all'.")
 
 
 # Function to handle user input for month and day range
@@ -110,30 +104,13 @@ if gcal_response[0].lower() == "c":
     gcal = "use secret address in params (THIS IS NOT A FILE!) $,! :)"
     print("Using credentials.json file in ../data")
 elif gcal_response[0].lower() == "p":
-    gcal = (
-        askopenfilename()
-    )  # show an "Open" dialog box and return the path to the selected file
+    gcal = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
     assert type(gcal) == str, "Error: Must select a file!"
     print("Location " + gcal + " chosen")
 
 else:
     gcal = "../data/gcal.ics"
     print("Default location data/gcal.ics chosen")
-print("")
-print("File picker for activitywatch json? ( y / n )")
-aw_response = input()
-if aw_response[0].lower() == "y":
-    aw = (
-        askopenfilename()
-    )  # show an "Open" dialog box and return the path to the selected file
-    if len(aw) == 0:
-        print("ERROR: cancelled dialog")
-        quit()
-    print("Location " + str(aw) + " chosen")
-else:
-    aw = "../data/aw-category-export.json"
-    print("Default location data/aw-category-export.json chosen")
-print("")
 
 while True:
     params = json.load(open(JSON_PARAMETERS_LOCATION, "r"))
@@ -145,9 +122,7 @@ while True:
     print("year: " + str(year))
     print("month_of_interest: " + str(month_of_interest))
     print("day range:" + str(day_range))
-    print(
-        'Day range is first to last day inclusive, and also you can put "all" as well for the whole month'
-    )
+    print('Day range is first to last day inclusive, and also you can put "all" as well for the whole month')
     print()
     # run the import script, combining google calendar (ics) and activity watch.
     if gcal == "use secret address in params (THIS IS NOT A FILE!) $,! :)":
