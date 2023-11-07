@@ -77,10 +77,14 @@ def main():
         else:
             new_description = entered_description
             while True:
-                new_project = input("Enter the project ID for this event, or type 'list' to see existing categories: ")
+                new_project = input(
+                    "Enter the project ID for this event, or type 'list' to see existing categories: "
+                )
                 if new_project == "list":
                     print("Here are the existing categories for each project ID:")
-                    for project_id in set(details["project"] for details in cats.values()):
+                    for project_id in set(
+                        details["project"] for details in cats.values()
+                    ):
                         associated_categories = get_project_selection(data, project_id)
                         print(f"{project_id}: {associated_categories}")
                 else:
@@ -88,7 +92,13 @@ def main():
             new_billable = input("Is this event billable? (True/False): ")
 
         # Update the categories with the new user-provided information
-        new_category = {summary: {"description": new_description, "project": new_project, "billable": new_billable}}
+        new_category = {
+            summary: {
+                "description": new_description,
+                "project": new_project,
+                "billable": new_billable,
+            }
+        }
         data["categories"].update(new_category)
 
         update_categories(new_category, data, JSON_CATEGORIES_LOCATION)

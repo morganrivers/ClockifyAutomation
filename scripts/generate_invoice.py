@@ -1,8 +1,9 @@
 import json
 import pdfkit
+
 JSON_PARAMETERS_LOCATION = "../data/invoice_params.json"
 
-params = json.load(open(JSON_PARAMETERS_LOCATION, 'r'))
+params = json.load(open(JSON_PARAMETERS_LOCATION, "r"))
 
 invoice_number = dict(params.items())["invoice_number"]
 hourly_rate = dict(params.items())["hourly_rate"]
@@ -22,15 +23,16 @@ invoice_number_int = int(invoice_number)
 total_hours_float = float(total_hours)
 hourly_rate_float = float(hourly_rate)
 
-created = current_month+" "+current_day+", "+current_year
-due = due_month+" "+due_day+", "+due_year
+created = current_month + " " + current_day + ", " + current_year
+due = due_month + " " + due_day + ", " + due_year
 month_title = month_for_invoice.upper()
 multiplied_total_float = total_hours_float * hourly_rate_float
 multiplied_total = str(total_hours_float * hourly_rate_float)
 overall_total = multiplied_total
 
 
-output = """
+output = (
+    """
 <!DOCTYPE html>
 <html>
     <head>
@@ -141,13 +143,21 @@ output = """
                         <table>
                             <tr>
                                 <td class="title">
-                                    """+month_title+""" INVOICE
+                                    """
+    + month_title
+    + """ INVOICE
                                 </td>
 
                                 <td>
-                                    <strong>Invoice #:</strong> """+invoice_number+"""<br />
-                                    <strong>Created:</strong> """+created+"""<br />
-                                    <strong>Due:</strong> """+due+"""
+                                    <strong>Invoice #:</strong> """
+    + invoice_number
+    + """<br />
+                                    <strong>Created:</strong> """
+    + created
+    + """<br />
+                                    <strong>Due:</strong> """
+    + due
+    + """
                                 </td>
                             </tr>
                         </table>
@@ -160,12 +170,16 @@ output = """
                             <tr>
                                 <td>
                                     <strong>Bill To:</strong><br />
-                                    """+bill_to_address+"""
+                                    """
+    + bill_to_address
+    + """
                                 </td>
 
                                 <td>
                                     <strong>Ship To:</strong><br />
-                                    """+ship_to_address+"""
+                                    """
+    + ship_to_address
+    + """
                                 </td>
                             </tr>
                         </table>
@@ -181,7 +195,9 @@ output = """
                 </tr>
 
                 <tr class="details">
-                    <td>"""+payment_method+"""</td>
+                    <td>"""
+    + payment_method
+    + """</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -197,11 +213,21 @@ output = """
                 </tr>
 
                 <tr class="item last">
-                    <td>Research Associate Compensation, month of """+month_for_invoice+""", """+current_year+"""</td>
+                    <td>Research Associate Compensation, month of """
+    + month_for_invoice
+    + """, """
+    + current_year
+    + """</td>
                     <td></td>
-                    <td>"""+total_hours+""" hours</td>
-                    <td>$"""+hourly_rate+"""</td>
-                    <td>$"""+multiplied_total+"""</td>
+                    <td>"""
+    + total_hours
+    + """ hours</td>
+                    <td>$"""
+    + hourly_rate
+    + """</td>
+                    <td>$"""
+    + multiplied_total
+    + """</td>
                 </tr>
 
                 <tr class="total">
@@ -210,20 +236,22 @@ output = """
                     <td></td>
                     <td></td>
 
-                    <td><strong>Total:</strong> $"""+overall_total+"""</td>
+                    <td><strong>Total:</strong> $"""
+    + overall_total
+    + """</td>
                 </tr>
             </table>
         </div>
     </body>
 </html>"""
+)
 
-html_filename = "../data/Invoice_"+invoice_number+".html"
-pdf_filename = "../data/Invoice_"+invoice_number+".pdf"
+html_filename = "../data/Invoice_" + invoice_number + ".html"
+pdf_filename = "../data/Invoice_" + invoice_number + ".pdf"
 
 f = open(html_filename, "w")
 f.write(output)
 f.close()
 
-#convert to pdf
+# convert to pdf
 pdfkit.from_file(html_filename, pdf_filename)
-

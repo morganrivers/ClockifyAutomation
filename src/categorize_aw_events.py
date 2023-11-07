@@ -51,7 +51,9 @@ def add_pattern_to_rules_json(category_name, new_pattern):
                 # The regex patterns are combined using '|'
                 category["rule"]["regex"] += "|" + re.escape(new_pattern)
                 break
-        assert found_category, "Error: tried to add regex string to category but could not be found. Quitting."
+        assert (
+            found_category
+        ), "Error: tried to add regex string to category but could not be found. Quitting."
 
         # Go to the beginning of the file to overwrite it
         read_file.seek(0)
@@ -72,7 +74,9 @@ def combine_and_sort_rules(rules):
         # print("rule.regex")
         # print(rule.regex)
         regex_pattern = rule.regex.pattern if rule.regex else "N/A"
-        if len(category_name) == 1:  # Categories with one-element names are treated as personal
+        if (
+            len(category_name) == 1
+        ):  # Categories with one-element names are treated as personal
             if (
                 category_name[0].split("*")[0] == work_generic_description
                 and category_name[0].split("*")[1] == work_generic_project
@@ -94,7 +98,10 @@ def combine_and_sort_rules(rules):
         if key == (work_generic_project, work_generic_description):
             return ("", "0")
         elif key in personal_keys:
-            return ("zzzzzzz", key[1])  # 'z' will sort these last, ordered by description
+            return (
+                "zzzzzzz",
+                key[1],
+            )  # 'z' will sort these last, ordered by description
         return key
 
     sorted_combined_rules = sorted(combined_rules.items(), key=sort_key)
@@ -111,7 +118,9 @@ def show_rules_and_get_category_numbers(rules):
     category_name_by_rule_number = []
     print("FORMAT")
     print("Rule number: (if work, project id) category name : regex search strings ")
-    for i, ((project, description), regex_patterns) in enumerate(sorted_combined_rules, start=1):
+    for i, ((project, description), regex_patterns) in enumerate(
+        sorted_combined_rules, start=1
+    ):
         assert i < 100  # Ensure the index 'i' is 2 characters wide
         combined_regex = "|".join(regex_patterns)
         SHORTEN_DISPLAYED_REGEXES = True
@@ -123,14 +132,18 @@ def show_rules_and_get_category_numbers(rules):
             to_show_regex = combined_regex
         if project == "personal":
             print(f"{i:2}: {description}: {to_show_regex}")
-            category_name_by_rule_number.append([description])  # Assuming personal categories are single-element lists
+            category_name_by_rule_number.append(
+                [description]
+            )  # Assuming personal categories are single-element lists
         else:
             print(f"{i:2}: {project} {description}: {to_show_regex}")
             if description == aw_work_tree_root.split("*")[0]:
                 # this is the generic root parent project
                 category_name_by_rule_number.append([description + "*" + project])
             else:
-                category_name_by_rule_number.append([aw_work_tree_root, description + "*" + project])
+                category_name_by_rule_number.append(
+                    [aw_work_tree_root, description + "*" + project]
+                )
 
     return category_name_by_rule_number
 
@@ -172,7 +185,10 @@ def convert_categorized_data_to_csv(categorized):
 
             continue
         if len(category_tree) == 1:  # the generic one
-            split_by_asterisk_tuple = [aw_work_tree_root.split("*")[0], aw_work_tree_root.split("*")[1]]
+            split_by_asterisk_tuple = [
+                aw_work_tree_root.split("*")[0],
+                aw_work_tree_root.split("*")[1],
+            ]
         else:
             split_by_asterisk_tuple = category_tree[1].split("*")
         description, project = split_by_asterisk_tuple
@@ -182,14 +198,24 @@ def convert_categorized_data_to_csv(categorized):
         else:
             billable = "true"
 
-        start_dt = cz["timestamp"] + timedelta(hours=HOURS_OFF_UTC)  # convert to PST from UTC
+        start_dt = cz["timestamp"] + timedelta(
+            hours=HOURS_OFF_UTC
+        )  # convert to PST from UTC
         duration_delta = cz["duration"]
         df_start_timestamp.append(start_dt.replace(microsecond=0).timestamp())
-        df_end_timestamp.append((start_dt + duration_delta).replace(microsecond=0).timestamp())
+        df_end_timestamp.append(
+            (start_dt + duration_delta).replace(microsecond=0).timestamp()
+        )
 
-        df_start_time.append(start_dt.replace(microsecond=0).strftime("%Y-%m-%dT%T.000Z"))
+        df_start_time.append(
+            start_dt.replace(microsecond=0).strftime("%Y-%m-%dT%T.000Z")
+        )
 
-        df_end_time.append((start_dt + duration_delta).replace(microsecond=0).strftime("%Y-%m-%dT%T.000Z"))
+        df_end_time.append(
+            (start_dt + duration_delta)
+            .replace(microsecond=0)
+            .strftime("%Y-%m-%dT%T.000Z")
+        )
         # print("project + description")
         # print(project + ", " + description)
         # print("")
@@ -228,7 +254,11 @@ def load_events_from_json(file_path):
 
 def get_uncategorized_events(categorized_events):
     # Filter out events that have a category set to "Uncategorized"
-    return [event for event in categorized_events if event["data"]["$category"][0] == "Uncategorized"]
+    return [
+        event
+        for event in categorized_events
+        if event["data"]["$category"][0] == "Uncategorized"
+    ]
 
 
 def print_summary_and_maybe_process_actions(action_stack, rules):
@@ -237,12 +267,22 @@ def print_summary_and_maybe_process_actions(action_stack, rules):
     for action, category_names, regex_to_add in action_stack:
         category_name_for_summary = category_names[-1] if category_names else "Unknown"
         if action == "add":
-            print(f"Action: Add Pattern | Category: {category_name_for_summary} | Regex: {regex_to_add}")
+            print(
+                f"Action: Add Pattern | Category: {category_name_for_summary} | Regex: {regex_to_add}"
+            )
         elif action == "new":
-            print(f"Action: New Rule | Category: {category_name_for_summary} | Regex: {regex_to_add}")
+            print(
+                f"Action: New Rule | Category: {category_name_for_summary} | Regex: {regex_to_add}"
+            )
 
     # Prompt the user for their choice
-    user_choice = input("Please choose an option: 'e' to save and exit, 'q' to quit without saving: ").strip().lower()
+    user_choice = (
+        input(
+            "Please choose an option: 'e' to save and exit, 'q' to quit without saving: "
+        )
+        .strip()
+        .lower()
+    )
     while True:
         if user_choice == "e":
             # Save changes and exit
@@ -287,9 +327,13 @@ def add_pattern_to_rules(rules, category_name, new_pattern):
             # Make sure to add only if the pattern doesn't already exist
             pattern_parts = rule.regex.pattern.split("|")
             if new_pattern not in pattern_parts:
-                rule.regex = re.compile(rule.regex.pattern + "|" + re.escape(new_pattern))
+                rule.regex = re.compile(
+                    rule.regex.pattern + "|" + re.escape(new_pattern)
+                )
 
-    assert found_category, "Error: category tried to add but could not be found. Quitting."
+    assert (
+        found_category
+    ), "Error: category tried to add but could not be found. Quitting."
     return rules
 
 
@@ -307,7 +351,11 @@ def remove_pattern_from_rules(rules, category_name, pattern_to_remove):
                 # Filter out any empty strings that could lead to an empty regex part
                 pattern_parts = list(filter(None, pattern_parts))
                 # Recompile the regex if there are any patterns left, otherwise set a default pattern
-                rule.regex = re.compile("|".join(pattern_parts)) if pattern_parts else re.compile("a^")
+                rule.regex = (
+                    re.compile("|".join(pattern_parts))
+                    if pattern_parts
+                    else re.compile("a^")
+                )
             break
     return rules
 
@@ -324,7 +372,11 @@ def add_rule_to_rules_json(category_name, new_pattern, case_sensitive=False):
             new_rule = {
                 "name": [category_name],
                 "name_pretty": category_name,
-                "rule": {"type": "regex", "regex": re.escape(new_pattern), "ignore_case": not case_sensitive},
+                "rule": {
+                    "type": "regex",
+                    "regex": re.escape(new_pattern),
+                    "ignore_case": not case_sensitive,
+                },
                 "data": {
                     # no color for now
                     # "color": "#000000"  # Default color
@@ -340,7 +392,11 @@ def add_rule_to_rules_json(category_name, new_pattern, case_sensitive=False):
             new_rule = {
                 "name": [aw_work_tree_root, category_name],
                 "name_pretty": [aw_work_tree_root + ">" + category_name],
-                "rule": {"type": "regex", "regex": re.escape(new_pattern), "ignore_case": not case_sensitive},
+                "rule": {
+                    "type": "regex",
+                    "regex": re.escape(new_pattern),
+                    "ignore_case": not case_sensitive,
+                },
                 "data": {
                     # no color for now
                     # "color": "#000000"  # Default color
@@ -352,7 +408,11 @@ def add_rule_to_rules_json(category_name, new_pattern, case_sensitive=False):
             }
 
         # Get the next id value
-        next_id = max(category["id"] for category in data["categories"]) + 1 if data["categories"] else 1
+        next_id = (
+            max(category["id"] for category in data["categories"]) + 1
+            if data["categories"]
+            else 1
+        )
         new_rule["id"] = next_id
 
         # Append the new rule to the categories
@@ -447,7 +507,9 @@ def get_sorted_event_groups(categorized_events):
             event_groups[description]["events"].append(event)
 
     # Sort by total duration
-    sorted_event_groups = sorted(event_groups.items(), key=lambda item: item[1]["duration"], reverse=True)
+    sorted_event_groups = sorted(
+        event_groups.items(), key=lambda item: item[1]["duration"], reverse=True
+    )
     return sorted_event_groups
 
 
@@ -467,7 +529,9 @@ def get_input_from_user(description, details, rules):
         # Check if the duration is less than 5 minutes
         if duration_td.total_seconds() < 300:
             # If less than 5 minutes, include seconds in the output
-            formatted_duration = f"{seconds}s" if minutes == 0 else f"{minutes}m, {seconds}s"
+            formatted_duration = (
+                f"{seconds}s" if minutes == 0 else f"{minutes}m, {seconds}s"
+            )
         else:
             # Otherwise, format as hours and minutes
             formatted_duration = f"{hours}h, {minutes}m" if hours > 0 else f"{minutes}m"
@@ -487,7 +551,9 @@ def get_input_from_user(description, details, rules):
             rule_number = int(response)
             if 1 <= rule_number <= len(rules):
                 prompt_message = "\nEnter the new (case-sensitive) string to add as a string search pattern for window titles,\nOR simply press enter to match only the exact string: "
-                category_name = category_name_by_rule_number[rule_number - 1]  # zero-indexing, adjust by -1
+                category_name = category_name_by_rule_number[
+                    rule_number - 1
+                ]  # zero-indexing, adjust by -1
 
                 regex_to_add = input(prompt_message).strip()
 
@@ -496,7 +562,9 @@ def get_input_from_user(description, details, rules):
 
                 # Check if regex_to_add is valid
                 if any(char in regex_to_add for char in "|*"):
-                    print("Invalid rule name, no '|' or '*' or empty rule allowed. Please try again.")
+                    print(
+                        "Invalid rule name, no '|' or '*' or empty rule allowed. Please try again."
+                    )
                     continue
 
                 return "add", (category_name, regex_to_add)
@@ -517,7 +585,10 @@ def get_input_from_user(description, details, rules):
             ).strip()
             if not regex_to_add:
                 regex_to_add = description.strip()
-            return "new", {"category_name": name + "*" + project_id, "regex_to_add": regex_to_add}
+            return "new", {
+                "category_name": name + "*" + project_id,
+                "regex_to_add": regex_to_add,
+            }
         elif response == "e":
             return "save_and_exit", None
         elif response == "q":
@@ -670,7 +741,9 @@ def prompt_user_for_categorization(events, rules):
                 print(category_name)
 
                 action_stack.append(("new", category_name, regex_to_add))
-                rules = add_new_rule(rules, category_name, regex_to_add, ignore_case=False)
+                rules = add_new_rule(
+                    rules, category_name, regex_to_add, ignore_case=False
+                )
                 break  # Exit the for-loop to refresh the sorted_event_groups
 
             elif action == "undo":
@@ -685,7 +758,9 @@ def prompt_user_for_categorization(events, rules):
                     if last_action[0] == "add":
                         category_name, regex_to_remove = last_action[1:]
 
-                        rules = remove_pattern_from_rules(rules, category_name, regex_to_remove)
+                        rules = remove_pattern_from_rules(
+                            rules, category_name, regex_to_remove
+                        )
                     elif last_action[0] == "new":
                         rules = remove_rule(rules, category_name)
                     else:

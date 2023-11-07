@@ -34,7 +34,7 @@ def xprop_root() -> str:
 
 def get_active_window_id():
     lines = xprop_root().split("\n")
-    match="_NET_ACTIVE_WINDOW(WINDOW)"
+    match = "_NET_ACTIVE_WINDOW(WINDOW)"
     result = None
     for line in lines:
         if match in line:
@@ -92,7 +92,10 @@ def get_xprop_field_int(fieldname, xprop_output) -> int:
 def get_xprop_field_class(xprop_output) -> List[str]:
     classname: List[str] = []
     try:
-        classname = [c.strip('", ') for c in get_xprop_field("WM_CLASS", xprop_output)[0].split(',')]
+        classname = [
+            c.strip('", ')
+            for c in get_xprop_field("WM_CLASS", xprop_output)[0].split(",")
+        ]
     except IndexError:
         pass
     if not classname:
@@ -122,6 +125,7 @@ def get_windows(wids, active_window_id=None):
 
 if __name__ == "__main__":
     from time import sleep
+
     logging.basicConfig(level=logging.INFO)
     while True:
         sleep(1)

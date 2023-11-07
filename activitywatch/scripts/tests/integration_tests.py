@@ -8,6 +8,7 @@ import pytest
 
 def _windows_kill_process(pid):
     import ctypes
+
     PROCESS_TERMINATE = 1
     handle = ctypes.windll.kernel32.OpenProcess(PROCESS_TERMINATE, False, pid)
     ctypes.windll.kernel32.TerminateProcess(handle, -1)
@@ -19,7 +20,9 @@ def server_process():
     logfile_stdout = tempfile.NamedTemporaryFile(delete=False)
     logfile_stderr = tempfile.NamedTemporaryFile(delete=False)
 
-    server_proc = subprocess.Popen(["aw-server", "--testing"], stdout=logfile_stdout, stderr=logfile_stderr)
+    server_proc = subprocess.Popen(
+        ["aw-server", "--testing"], stdout=logfile_stdout, stderr=logfile_stderr
+    )
 
     # Wait for server to start up properly
     # TODO: Ping the server until it's alive to remove this sleep
@@ -40,7 +43,9 @@ def server_process():
     with open(logfile_stdout.name, "r+b") as f:
         stdout = str(f.read(), "utf8")
         if any(e in stdout for e in error_indicators):
-            pytest.fail("Found ERROR indicator in stdout from server: {}".format(stdout))
+            pytest.fail(
+                "Found ERROR indicator in stdout from server: {}".format(stdout)
+            )
 
     with open(logfile_stderr.name, "r+b") as f:
         stderr = str(f.read(), "utf8")

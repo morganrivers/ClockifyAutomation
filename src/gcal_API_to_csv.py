@@ -36,7 +36,9 @@ def get_service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file("../data/credentials.json", SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(
+                "../data/credentials.json", SCOPES
+            )
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open("../data/token.json", "w") as token:
@@ -83,8 +85,12 @@ def classify(summary, data, JSON_CATEGORIES_LOCATION):
     # No match found
     print("Unmatched calendar item:", summary)
 
-    print('Enter the description to show on the timesheet for this event, enter "p" for personal event (not work')
-    entered_description = input('related) or just hit enter to categorize this as "default generic research project": ')
+    print(
+        'Enter the description to show on the timesheet for this event, enter "p" for personal event (not work'
+    )
+    entered_description = input(
+        'related) or just hit enter to categorize this as "default generic research project": '
+    )
 
     if entered_description == "p":
         new_description = summary
@@ -97,7 +103,9 @@ def classify(summary, data, JSON_CATEGORIES_LOCATION):
     else:
         new_description = entered_description
         while True:
-            new_project = input("Enter the project ID for this event, or type 'list' to see existing categories: ")
+            new_project = input(
+                "Enter the project ID for this event, or type 'list' to see existing categories: "
+            )
             if new_project == "list":
                 print("Here are the existing categories for each project ID:")
                 for project_id in set(details["project"] for details in cats.values()):
@@ -108,7 +116,13 @@ def classify(summary, data, JSON_CATEGORIES_LOCATION):
         new_billable = input("Is this event billable? (True/False): ")
 
     # Update the categories
-    new_category = {summary: {"description": new_description, "project": new_project, "billable": new_billable}}
+    new_category = {
+        summary: {
+            "description": new_description,
+            "project": new_project,
+            "billable": new_billable,
+        }
+    }
     data["categories"].update(new_category)
 
     update_categories(new_category, data, JSON_CATEGORIES_LOCATION)
@@ -158,14 +172,20 @@ def main():
     if day_range == "all":
         # First and last day of the month
         start_day = 1
-        end_day = calendar.monthrange(int(year), int(month_of_interest))[1]  # This gets the last day of the month
+        end_day = calendar.monthrange(int(year), int(month_of_interest))[
+            1
+        ]  # This gets the last day of the month
     else:
         # Specific range of days
         start_day, end_day = day_range
 
     # Create timezone-aware datetime objects for the start and end of the period
-    timezone = pytz.timezone("UTC")  # Replace with your timezone, e.g., "UTC", "Europe/Berlin", etc.
-    start_of_period = timezone.localize(datetime.datetime(int(year), int(month_of_interest), start_day))
+    timezone = pytz.timezone(
+        "UTC"
+    )  # Replace with your timezone, e.g., "UTC", "Europe/Berlin", etc.
+    start_of_period = timezone.localize(
+        datetime.datetime(int(year), int(month_of_interest), start_day)
+    )
     end_of_period = timezone.localize(
         datetime.datetime(int(year), int(month_of_interest), end_day, 23, 59, 59)
     )  # end of day_range[1]
@@ -220,7 +240,8 @@ def main():
 
             # Check for user acceptance
             accept = any(
-                attendee.get("email") == YOUR_EMAIL and attendee.get("responseStatus") in ["accepted", "tentative"]
+                attendee.get("email") == YOUR_EMAIL
+                and attendee.get("responseStatus") in ["accepted", "tentative"]
                 for attendee in event.get("attendees", [])
             )
 
@@ -228,7 +249,9 @@ def main():
                 continue
 
             summary = event["summary"]
-            description, project, billable = classify(summary, data, JSON_CATEGORIES_LOCATION)
+            description, project, billable = classify(
+                summary, data, JSON_CATEGORIES_LOCATION
+            )
 
             if project == "personal" and not (billable.lower() == "true"):
                 print(f"IGNORING {description} as it is not work related.")

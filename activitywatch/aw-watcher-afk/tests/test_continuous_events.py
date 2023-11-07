@@ -13,7 +13,9 @@ client = ActivityWatchClient("aw-watcher-afk-test", testing=True)
 print(client.get_buckets())
 
 bucket_id = sys.argv[1]
-events = client.get_events(bucket_id)  # For example "aw-watcher-afk-testing_erb-laptop-ubuntu"
+events = client.get_events(
+    bucket_id
+)  # For example "aw-watcher-afk-testing_erb-laptop-ubuntu"
 
 print("\n\n")
 
@@ -29,7 +31,11 @@ for event in sorted(events, key=lambda e: e.timestamp):
         print("Duration: {}".format(event.duration))
 
         if not timedelta(seconds=1) > abs(diff):
-            print("  WARNING: Diff had absolute value of over 1s ({}), this might be either because of a bug or due to aw-watcher-afk not running continuously".format(diff))
+            print(
+                "  WARNING: Diff had absolute value of over 1s ({}), this might be either because of a bug or due to aw-watcher-afk not running continuously".format(
+                    diff
+                )
+            )
             wrong_events += 1
 
         if last_event.label == event.label:

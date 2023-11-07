@@ -53,11 +53,11 @@ def getInfo() -> Dict[str, str]:
 
 
 def getApp(info: str) -> str:
-    return info.split('\n')[0]
+    return info.split("\n")[0]
 
 
 def getTitle(info: str) -> str:
-    return info.split('\n')[1]
+    return info.split("\n")[1]
 
 
 if __name__ == "__main__":
