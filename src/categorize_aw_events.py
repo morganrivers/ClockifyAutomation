@@ -239,6 +239,23 @@ def get_uncategorized_events(categorized_events):
     return [event for event in categorized_events if event["data"]["$category"][0] == "Uncategorized"]
 
 
+def get_sorted_event_groups(categorized_events):
+    # Group events by description and sum durations
+    event_groups = {}
+    for event in categorized_events:
+        description = event["data"].get("title", "No Description")
+        duration = event["duration"].total_seconds()
+        if description not in event_groups:
+            event_groups[description] = {"duration": duration, "events": [event]}
+        else:
+            event_groups[description]["duration"] += duration
+            event_groups[description]["events"].append(event)
+
+    # Sort by total duration
+    sorted_event_groups = sorted(event_groups.items(), key=lambda item: item[1]["duration"], reverse=True)
+    return sorted_event_groups
+
+
 def print_summary_and_maybe_process_actions(action_stack, rules):
     # Print a summary of the rules that will be added or created
     if len(action_stack) == 0:
@@ -283,19 +300,15 @@ def process_action_stack_to_json_and_ensure_rules_match(action_stack, rules):
 
     if not rules_are_same(loaded_rules_from_json, rules):
         print(
-            "WARNING: rules added do not correspond to rules in program's memory after saving. You might need to \
-            fix the json directly. Sorry about that."
+            "WARNING: rules added do not correspond to rules in program's memory after saving. You might need to "
+            "fix the json directly. Sorry about that."
         )
 
 
 def add_pattern_to_rules(rules, category_name, new_pattern):
     # Update the rule in memory without writing to the JSON file
     found_category = False
-    print("cat name to find")
-    print(category_name)
     for cname, rule in rules:
-        print("cname")
-        print(cname)
         if cname == category_name:
             found_category = True
             # The regex patterns are combined using '|'
@@ -458,23 +471,6 @@ def remove_rule(rules, category_name):
     return rules
 
 
-def get_sorted_event_groups(categorized_events):
-    # Group events by description and sum durations
-    event_groups = {}
-    for event in categorized_events:
-        description = event["data"].get("title", "No Description")
-        duration = event["duration"].total_seconds()
-        if description not in event_groups:
-            event_groups[description] = {"duration": duration, "events": [event]}
-        else:
-            event_groups[description]["duration"] += duration
-            event_groups[description]["events"].append(event)
-
-    # Sort by total duration
-    sorted_event_groups = sorted(event_groups.items(), key=lambda item: item[1]["duration"], reverse=True)
-    return sorted_event_groups
-
-
 def get_input_from_user(description, details, rules):
     # Show rules and prompt for input
     category_name_by_rule_number = show_rules_and_get_category_numbers(rules)
@@ -487,6 +483,18 @@ def get_input_from_user(description, details, rules):
         # Extract hours and minutes
         hours, remainder = divmod(duration_td.seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
+
+        if duration_td.total_seconds() < 30:
+            while True:
+                print("Remaining event durations all less than 30 seconds. No reason to continue to categorize.")
+                print("Would you like to save and exit categorization ('e'), or quit without saving ('q')?")
+                response = input()
+                if response == "e":
+                    return "save_and_exit", None
+                elif response == "q":
+                    return "quit_no_save", None
+                else:
+                    print("Invalid input. Try again.")
 
         # Check if the duration is less than 5 minutes
         if duration_td.total_seconds() < 300:
@@ -502,8 +510,8 @@ def get_input_from_user(description, details, rules):
 
         response = (
             input(
-                "\nEnter the rule number to categorize this event, 'u' to undo, 'n' to create new rule,'s' to skip, \
-                'e' to save and exit categorization loop, or q to quit without saving: "
+                "\nEnter the rule number to categorize this event, 'u' to undo, 'n' to create new rule,'s' to skip, "
+                "'e' to save and exit categorization loop, or q to quit without saving: "
             )
             .strip()
             .lower()
@@ -511,7 +519,10 @@ def get_input_from_user(description, details, rules):
         if response.isdigit():
             rule_number = int(response)
             if 1 <= rule_number <= len(rules):
-                prompt_message = "\nEnter the new (case-sensitive) string to add as a string search pattern for window titles,\nOR simply press enter to match only the exact string: "
+                prompt_message = (
+                    "\nEnter the new (case-sensitive) string to add as a string search pattern for window titles,"
+                    "\nOR simply press enter to match only the exact string: "
+                )
                 category_name = category_name_by_rule_number[rule_number - 1]  # zero-indexing, adjust by -1
 
                 regex_to_add = input(prompt_message).strip()
@@ -581,7 +592,7 @@ def rules_are_same(rules1, rules2):
 
 def print_difference_between_rules_lists(rule_list1, rule_list2):
     print("")
-    print("Printing out differences so far:")
+    print("Printing out unsaved rule additions so far:")
 
     # Sort the rules by category name to ensure they are in the same order
     rule_list2.sort(key=lambda x: x[0])
@@ -621,7 +632,8 @@ def print_difference_between_rules_lists(rule_list1, rule_list2):
             differences_found = True
 
             print(
-                f"Regex pattern update for '{rule_name[0]}': '{existing_rule_list1_names[rule_name][1].regex.pattern}' (Original) != '{existing_rule_list2_names[rule_name][1].regex.pattern}' (Updated)"
+                f"Regex pattern update for '{rule_name[0]}': '{existing_rule_list1_names[rule_name][1].regex.pattern}'"
+                f" (Original) != '{existing_rule_list2_names[rule_name][1].regex.pattern}' (Updated)"
             )
 
     if not differences_found and not new_rules:
@@ -638,43 +650,16 @@ def prompt_user_for_categorization(events, rules):
 
     original_rules = copy.deepcopy(rules)
 
-    # print("original_rules")
-    # print(original_rules)
+    first_loop = True
     while True:
-        # print("new rules")
-        # print(rules)
-        print_difference_between_rules_lists(original_rules, rules)
-        # print("")
-        # print("rules[-1]")
-        # print(rules[-1])
-        # # breakpoint()
-        # print("")
+        if not first_loop:
+            print_difference_between_rules_lists(original_rules, rules)
+        first_loop = False
         categorized_events = aw_transform.categorize(events, rules)
-        # print("categorized_events")
-        # print(categorized_events)
-        # print([event for event in categorized_events if event["data"]["$category"][0] == "Uncategorized"])
 
         uncategorized_events = get_uncategorized_events(categorized_events)
         sorted_event_groups = get_sorted_event_groups(uncategorized_events)
-        # test_event = sorted_event_groups[0][1]["events"][0]
-        # test_rule = rules[-1][1]
-        # print("test_event")
-        # print(test_event)
-        # print("test_rule")
-        # print(test_rule)
-        # print(test_rule.regex)
 
-        # print("rules")
-        # print(rules)
-        # print("[test_rule]")
-        # print([test_rule])
-
-        # categorized_events = aw_transform.categorize(events, rules)
-        # categorized_event = aw_transform.categorize([test_event], [(["personal"], test_rule)])
-        # print("categorized_event")
-        # print(categorized_event)
-        # breakpoint()
-        # print(sorted_event_groups)
         if not sorted_event_groups:
             break  # Exit if there are no more event groups to process
 
@@ -717,9 +702,11 @@ def prompt_user_for_categorization(events, rules):
                     elif last_action[0] == "new":
                         rules = remove_rule(rules, category_name)
                     else:
-                        input(
-                            "Last action must have been adding regex or making new rule to undo. Nothing was undone.\n Press enter to continue."
+                        print(
+                            "Last action must have been adding regex or"
+                            "making new rule to undo. Nothing was undone.\n"
                         )
+                        input("Press enter to continue.")
 
                     break  # Exit the for-loop to refresh the sorted_event_groups
                 else:

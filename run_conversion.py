@@ -51,20 +51,23 @@ def get_custom_day_range():
 
 # Function to handle user input for month and day range
 def handle_user_input():
-    print(
-        "Please enter 'j' for using the existing data/params.json month and day range, or 'm' for entering custom \
-        month and/or day range to use and update the params file"
-    )
     day_range = ""
     month_of_interest = -1
     while True:
-        response = input().strip().lower()
+        response = (
+            input(
+                "Please enter 'j' for using the existing data/params.json month and day range, or 'm' for entering "
+                "custom month and/or day range to use and update the params file: ",
+            )
+            .strip()
+            .lower()
+        )
         if len(response) == 0:
-            print("Please type an input")
+            print("Please type an input.")
         elif response in ["j", "m"]:
             break
         else:
-            print("Please enter either 'j' or 'm'")
+            print("Please enter either 'j' or 'm'.")
     if response == "m":
         # Ask for custom month and day range
         while True:
@@ -75,11 +78,11 @@ def handle_user_input():
                 else:
                     print("Month must be between 1 and 12.")
             except ValueError:
-                print("Invalid input. Please enter a number between 1 and 12.")
+                print("Invalid input. Please enter a number between 1 and 12.\n")
         day_range = get_custom_day_range()
         write_to_json(month_of_interest, day_range)
     else:
-        print("Using data from params.json.")
+        print("Using data from params.json.\n")
 
         params = json.load(open(JSON_PARAMETERS_LOCATION, "r"))
 
@@ -90,23 +93,22 @@ def handle_user_input():
 
 
 # import the gcal and aw files
-print(
-    """Google calendar access: load from gcal credentials ( c ), file 
-    picker ( p ), or default location dowloaded ical ( d )"""
-)
 while True:
-    gcal_response = input()
+    gcal_response = input(
+        "Google calendar access: load from gcal credentials ( c ), "
+        "file picker ( p ), or default location dowloaded ical ( d ): "
+    )
     if len(gcal_response) == 0:
         print("Please type an input")
     else:
         break
 if gcal_response[0].lower() == "c":
     gcal = "use secret address in params (THIS IS NOT A FILE!) $,! :)"
-    print("Using credentials.json file in ../data")
+    print("Using credentials.json file in ../data. \n")
 elif gcal_response[0].lower() == "p":
     gcal = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
     assert type(gcal) == str, "Error: Must select a file!"
-    print("Location " + gcal + " chosen")
+    print("Location " + gcal + " chosen. \n")
 
 else:
     gcal = "../data/gcal.ics"

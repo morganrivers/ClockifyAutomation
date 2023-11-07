@@ -217,7 +217,7 @@ def main():
     afk_bucket_id = dict(params.items())["afk_bucket_id"]
 
     print("")
-    print("getting windowed AW events from python binding..")
+    print("getting windowed AW events REST API request..")
     window_events_over_period = get_window_events_over_period(
         year, month_of_interest, day_range, event_bucket_id, afk_bucket_id
     )

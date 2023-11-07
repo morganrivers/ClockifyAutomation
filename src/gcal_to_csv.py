@@ -12,6 +12,10 @@ import json
 # run through the categorization, as well as create an output CSV and ICS
 # representing the data
 def main():
+    print("")
+    print("Now we are categorizing the calendar events you have imported.")
+    print("")
+
     INPUT_CALENDAR_LOCATION = "../data/gcal_shortened.ics"
     CALENDAR_EVENTS_OUTPUT_CSV_LOCATION = "../data/calendar_output_raw.csv"
     CALENDAR_EVENTS_OUTPUT_ICS_LOCATION = "../data/calendar_output_raw.ics"
@@ -77,14 +81,10 @@ def main():
         else:
             new_description = entered_description
             while True:
-                new_project = input(
-                    "Enter the project ID for this event, or type 'list' to see existing categories: "
-                )
+                new_project = input("Enter the project ID for this event, or type 'list' to see existing categories: ")
                 if new_project == "list":
                     print("Here are the existing categories for each project ID:")
-                    for project_id in set(
-                        details["project"] for details in cats.values()
-                    ):
+                    for project_id in set(details["project"] for details in cats.values()):
                         associated_categories = get_project_selection(data, project_id)
                         print(f"{project_id}: {associated_categories}")
                 else:
