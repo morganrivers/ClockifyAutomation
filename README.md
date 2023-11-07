@@ -34,3 +34,53 @@ python3 run_conversion.py
 Results should be online now. (Note:Don't upload to clockify twice! It will duplicate the records.)  
 
 If you wish, you can also now fill in your preferred invoice parameters in data/invoice_params.json. You'll need to manually enter the month, hours that month, etc. It generates a pdf in data/ called "Invoice_[invoice number you entered].pdf".
+
+# Other configuration
+
+I recommend the following if you're using this app for tracking work time:
+
+1. Making regular backups of activity watch data
+2. Starting up activity watch on boot
+3. Ensuring there's a way the computer can tell you that activity watch isn't running for some reason.
+
+I did these in linux with the i3 windows manager as follows:
+
+## 1. Making regular backups of activity watch data and 2. Starting activitywatch on boot.
+
+This is currently the first two lines in my crontab (`crontab -e` command in linux):
+
+```
+# m h  dom mon dow   command
+@reboot sleep 5 && export DISPLAY=:0 && while ! i3 --get-socketpath >/dev/null 2>&1; do sleep 5; done && /usr/bin/i3-msg " exec /bin/termit --execute='/home/dmrivers/Apps/activitywatch/aw-qt'" && /usr/bin/i3-msg "exec /bin/termit --execute='/home/dmrivers/Apps/activitywatch/aw-watcher-afk/aw-watcher-afk'" && sleep 15 && exec /home/dmrivers/Code/Debian/Startup/backup_aw.sh >/dev/null
+```
+
+The command provided is a chain of instructions that seem to be configured to run at system reboot, set within a user's crontab or similar scheduler. Here's a breakdown of what each part of the command does:
+
+- `@reboot`: This is a directive used in cron, a time-based job scheduler in Unix-like operating systems. It specifies that the following commands should be run at startup after the system reboots.
+
+- `sleep 5`: Pauses execution for 5 seconds. This gives the system some time to initialize other services before the subsequent commands are executed.
+
+- `export DISPLAY=:0`: Sets the `DISPLAY` environment variable to `:0`, which is typically the default display number for a computer's first graphical X session. This is necessary for graphical applications to know where to render themselves if they are being started by a script.
+
+- `while ! i3 --get-socketpath >/dev/null 2>&1; do sleep 5; done`: This loop continuously checks whether the i3 window manager is up and running by trying to get its socket path. If `i3 --get-socketpath` returns a non-zero exit status (i.e., i3 is not ready), it sleeps for 5 seconds and tries again. The loop exits once i3 is ready.
+
+- `/usr/bin/i3-msg " exec /bin/termit --execute='/home/dmrivers/Apps/activitywatch/aw-qt'"`: Once i3 is running, it uses `i3-msg`, which is a tool to send messages to the i3 window manager, to execute `termit`, a terminal emulator. The `termit` terminal is told to execute a script at the path `/home/dmrivers/Apps/activitywatch/aw-qt`, which is the ActivityWatch application.
+
+- `/usr/bin/i3-msg "exec /bin/termit --execute='/home/dmrivers/Apps/activitywatch/aw-watcher-afk/aw-watcher-afk'"`: Similarly, another `termit` window is opened to execute the ActivityWatch AFK watcher script found at `/home/dmrivers/Apps/activitywatch/aw-watcher-afk/aw-watcher-afk`. This tracks the user's idle time.
+
+- `sleep 15`: This pauses execution for another 15 seconds, to ensure that the previously started applications have enough time to initialize before the next command is run.
+
+- `exec /home/dmrivers/Code/Debian/Startup/backup_aw.sh >/dev/null`: Finally, this command executes a script named `backup_aw.sh` located at `/home/dmrivers/Code/Debian/Startup/`. The `exec` command replaces the shell with the specified program, which in this case is the script. The output is redirected to `/dev/null`, which means all output of the script (standard output and error) is discarded and not shown anywhere.
+
+## 3. Ensuring there's a way the computer can tell you that activity watch isn't running for some reason.
+This is the third line in my crontab:
+```
+* * * * * /usr/bin/python3 /home/dmrivers/Code/Debian/alert_user_if_aw_not_running.py
+```
+That launches a cron job to run the `alert_user_if_aw_not_running.py` script every minute. The script 
+
+
+## Final note
+
+You can find both `alert_user_if_aw_not_running.py` and `backup_aw.sh` in the scripts/ folder in this repository.
+These are specific to i3 but can be modified for other use cases. Other methods of startup, checking, and backups can also accomplish similar results.
