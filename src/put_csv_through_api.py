@@ -1,7 +1,84 @@
 import requests
 import json
 import pandas as pd
-import time
+
+
+def save_successful_post(time_entry, response_data):
+    """Saves the successfully posted time entry with its ID to a JSON file."""
+    file_path = "../data/already_posted_time.json"
+    try:
+        with open(file_path, "r") as file:
+            already_posted = json.load(file)
+    except FileNotFoundError:
+        already_posted = []
+
+    time_entry_with_id = {**time_entry, "id": response_data["id"]}
+    already_posted.append(time_entry_with_id)
+    with open(file_path, "w") as file:
+        json.dump(already_posted, file, indent=4)
+
+
+def is_already_posted(time_entry):
+    """Checks if the time entry is already posted, ignoring the ID field."""
+    file_path = "../data/already_posted_time.json"
+    try:
+        with open(file_path, "r") as file:
+            already_posted = json.load(file)
+            for posted_entry in already_posted:
+                if all(
+                    time_entry[k] == posted_entry[k] for k in time_entry if k != "id"
+                ):
+                    return True
+        return False
+    except FileNotFoundError:
+        return False
+
+
+def get_user_decision(description, start_time, end_time):
+    """Asks the user for their decision on whether to re-upload a time entry."""
+    while True:
+        decision = input(
+            f"\nReplace '{description}' ({start_time} - {end_time})? [y]es, [n]o, [A]ll, [N]one, [c]ancel: "
+        ).strip()  # Strips whitespace and converts to lowercase
+
+        if decision in ["y", "yes", "YES", "Yes"]:
+            return "yes"
+        elif decision in ["n", "no", "No", "NO"]:
+            return "no"
+        elif decision in ["a", "all", "A", "All", "ALL"]:
+            return "all"
+        elif decision in ["none", "None", "N", "NONE"]:
+            return "none"
+        elif decision in ["c", "cancel", "CANCEL", "Cancel"]:
+            return "cancel"
+        else:
+            print("Invalid selection. Please try again.")
+
+
+def make_clockify_request(method, workspaceid, time_entry, api_key, time_entry_id=None):
+    """Makes a POST or PUT request to the Clockify API based on the method specified."""
+    headers = {"x-api-key": api_key}  # Ensure api_key is accessible here
+    url = f"https://api.clockify.me/api/v1/workspaces/{workspaceid}/time-entries"
+    if method == "PUT":
+        url += f"/{time_entry_id}"
+        time_entry["id"] = time_entry_id
+
+    r = requests.request(method, url, json=time_entry, headers=headers)
+    return r
+
+
+def get_time_entry_id(time_entry, json_file_path="../data/already_posted_time.json"):
+    """Returns the ID of the time entry if it exists in the JSON file."""
+    try:
+        with open(json_file_path, "r") as file:
+            time_entries = json.load(file)
+            for entry in time_entries:
+                if all(time_entry[k] == entry[k] for k in time_entry if k != "id"):
+                    return entry["id"]
+    except FileNotFoundError:
+        print("JSON file not found.")
+        return None
+    return None
 
 
 def main():
@@ -12,24 +89,20 @@ def main():
 
     workspaceid = dict(params.items())["clockify_workspace_id"]
 
-    print("please enter clockify API key")
+    print("Please enter clockify API key:")
     api_key = input()
     data = {"x-api-key": api_key}
 
     df = pd.read_csv(CHUNKS_INPUT_CSV_LOCATION)
 
-    index = 0
-    while index < len(df):
-        row = df.iloc[index]
-        time.sleep(1)
+    global_reupload_decision = None
 
-        # CHECK! if(row["Billable"]): # this might be correct?
+    for index, row in df.iterrows():
         if row["Billable"]:
             b = "true"
         else:
             b = "false"
 
-        print(row["Project"])
         time_entry = {
             "start": row["Start Time"],
             "billable": b,
@@ -38,33 +111,62 @@ def main():
             "end": row["End Time"],
         }
 
-        r = requests.post(
-            "https://api.clockify.me/api/v1/workspaces/"
-            + workspaceid
-            + "/time-entries",
-            json=time_entry,
-            headers=data,
-        )
-
-        print(time_entry)
-
-        print(r)
-
-        if r.status_code != 201:
-            if r.status_code == 404:
-                print("")
-                print("Trying again, in case network is bad.")
+        decision = None
+        if is_already_posted(time_entry):
+            if global_reupload_decision == "none":
                 continue
-            elif r.status_code == 400:
-                print("")
-                print("Probably a mistake in the values if entered manually")
-                print("Otherwise, check workspace/user id.")
-                quit()
+            elif global_reupload_decision != "all":
+                decision = get_user_decision(
+                    row["Description"], row["Start Time"], row["End Time"]
+                )
+                if decision == "n":
+                    continue
+                elif decision == "none":
+                    global_reupload_decision = "none"
+                    continue
+                elif decision == "all":
+                    global_reupload_decision = "all"
+                elif decision == "c":
+                    print("Uploading canceled by the user.")
+                    return
 
-        index += 1
+            if global_reupload_decision == "all" or decision == "yes":
+                time_entry_id = get_time_entry_id(time_entry)
+                r = make_clockify_request(
+                    "PUT", workspaceid, time_entry, api_key, time_entry_id
+                )
+                print("Updating time entry")
+            else:
+                continue
+        else:
+            print("\nCreating new time entry")
+            r = make_clockify_request(
+                "POST",
+                workspaceid,
+                time_entry,
+                api_key,
+            )
 
+        print("Details:")
+        print(time_entry)
         print("")
-        print("")
+
+        if r.status_code == 201 or r.status_code == 200:
+            response_data = r.json()
+            print(f"Request made: {r.request.method} - {time_entry}")
+            print(
+                f"Event '{time_entry['description']}' ({time_entry['start']} - {time_entry['end']}) added/replaced."
+            )
+            save_successful_post(time_entry, response_data)
+        elif r.status_code == 404:
+            print("Trying again, in case network is bad.")
+        else:
+            print(f"Request made: {r.request.method} - {time_entry}")
+            print(f"Response: {r.status_code} - {r.text}")
+
+            print("Probably a mistake in the values if entered manually")
+            print("Otherwise, check workspace/user id.")
+            quit()
 
 
 if __name__ == "__main__":
