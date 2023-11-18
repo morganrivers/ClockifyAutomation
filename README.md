@@ -93,8 +93,7 @@ This is the third line in my crontab:
 ```
 That launches a cron job to run the `alert_user_if_aw_not_running.py` script every minute. The script checks the running processes and uses notify-send to alert the user if any processes are missing each minute.
 
-
-## Final note
+## Final note on installation
 
 You can find both `alert_user_if_aw_not_running.py` and `backup_aw.sh` in the scripts/ folder in this repository.
 These are specific to i3 but can be modified for other use cases. Other methods of startup, checking, and backups can also accomplish similar results.
