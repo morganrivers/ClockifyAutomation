@@ -1,14 +1,15 @@
 # What does this repo do exactly?
 If you're entering specific working hours via invoicing as a contractor, you know this can be a distracting, annoying, and often imprecise process. The goal of this repository is to empower contractors to no longer have to worry about manual time entry and invoicing.
 The software:
- - Ensures window titles are tracked locally using the Activitywatch application by launching activitywatch on startup and monitoring if it's running.
  - Imports this window title data and merges it with data from google calendar.
  - Connects to the api of a software called "clockify" often used for corporate invoice management.
  - Allows the user to view clockify project codes and efficiently sort their time all at once when the invoice is being submitted, using regular expression text-based search on window titles.
  - Makes intelligent decisions about when the user was working and when the user was away based on away from keyboard "afk" time, and the chunking of time bins.
  - Uploads relevant binned data to the clockify time bin.
  - Makes it easy for a contractor to export an invoice as a pdf based on time used.
-   
+
+Additionally, the instructions below provides installation instructions for scripts that ensures window titles are tracked locally using the Activitywatch application by launching activitywatch on startup and notifying the user if it's not running, as well as ensuring regular backups are made of the time data so that data loss is much less likely.
+
 This is an alpha version of an integration that should eventually be integrated into activity watch. 
 
 # HOW IT CURRENTLY WORKS
