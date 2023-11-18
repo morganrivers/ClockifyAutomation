@@ -13,7 +13,7 @@ Need internet connection to run!
         unzip morgan @ allfed.info.ical.zip
         HINT: you probably want to confirm yes to any prompts here.
         mv morgan\@allfed.info.ics ~/Code/ClockifyAutomation/data/gcal.ics
-4. [optional, if on linux] Install calcurse. Or if on windows, some other quick calendar inspection tool. Google calendar may be fine for this purpose.
+4. [optional, and only if on linux] Install calcurse. Or if on windows, some other quick calendar inspection tool. Google calendar may be fine for this purpose.
         $ calcurse -P #CAUTION: PURGES ALL DATA PREVIOUSLY STORED IN CALCURSE
         $ calcurse -i data/calendar_output_raw.ics 
         $ calcurse
@@ -51,7 +51,7 @@ This is currently the first two lines in my crontab (`crontab -e` command in lin
 
 ```
 # m h  dom mon dow   command
-@reboot sleep 5 && export DISPLAY=:0 && while ! i3 --get-socketpath >/dev/null 2>&1; do sleep 5; done && /usr/bin/i3-msg " exec /bin/termit --execute='/home/dmrivers/Apps/activitywatch/aw-qt'" && /usr/bin/i3-msg "exec /bin/termit --execute='/home/dmrivers/Apps/activitywatch/aw-watcher-afk/aw-watcher-afk'" && sleep 15 && exec /home/dmrivers/Code/Debian/Startup/backup_aw.sh >/dev/null
+@reboot sleep 5 && export DISPLAY=:0 && while ! i3 --get-socketpath >/dev/null 2>&1; do sleep 5; done && /usr/bin/i3-msg " exec /bin/termit --execute='/home/dmrivers/Apps/activitywatch/aw-qt'" && /usr/bin/i3-msg "exec /bin/termit --execute='/home/dmrivers/Apps/activitywatch/aw-watcher-afk/aw-watcher-afk'" && sleep 15 && exec /home/dmrivers/Code/ClockifyAutomation/backup_aw.sh >/dev/null
 ```
 
 The command provided is a chain of instructions that seem to be configured to run at system reboot, set within a user's crontab or similar scheduler. Here's a breakdown of what each part of the command does:
@@ -70,14 +70,14 @@ The command provided is a chain of instructions that seem to be configured to ru
 
 - `sleep 15`: This pauses execution for another 15 seconds, to ensure that the previously started applications have enough time to initialize before the next command is run.
 
-- `exec /home/dmrivers/Code/Debian/Startup/backup_aw.sh >/dev/null`: Finally, this command executes a script named `backup_aw.sh` located at `/home/dmrivers/Code/Debian/Startup/`. The `exec` command replaces the shell with the specified program, which in this case is the script. The output is redirected to `/dev/null`, which means all output of the script (standard output and error) is discarded and not shown anywhere.
+- `exec /home/dmrivers/Code/ClockifyAutomation/scripts/backup_aw.sh >/dev/null`: Finally, this command executes a script named `backup_aw.sh` located at the cloned github repo location. The `exec` command replaces the shell with the specified program, which in this case is the script. The output is redirected to `/dev/null`, which means all output of the script (standard output and error) is discarded and not shown anywhere.
 
 ## 3. Ensuring there's a way the computer can tell you that activity watch isn't running for some reason.
 This is the third line in my crontab:
 ```
-* * * * * /usr/bin/python3 /home/dmrivers/Code/Debian/alert_user_if_aw_not_running.py
+* * * * * /usr/bin/python3 /home/dmrivers/Code/ClockifyAutomation/scripts/alert_user_if_aw_not_running.py
 ```
-That launches a cron job to run the `alert_user_if_aw_not_running.py` script every minute. The script 
+That launches a cron job to run the `alert_user_if_aw_not_running.py` script every minute. The script checks the running processes and uses notify-send to alert the user if any processes are missing each minute.
 
 
 ## Final note
