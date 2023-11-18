@@ -57,7 +57,9 @@ def parse_iso8601_time(timestamp):
     return datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
 
 
-def get_window_events_over_period(year, month_of_interest, day_range, event_bucket_id, afk_bucket_id):
+def get_window_events_over_period(
+    year, month_of_interest, day_range, event_bucket_id, afk_bucket_id
+):
     # Construct the start and end datetime objects
     if day_range == "all":
         start = datetime(year, month_of_interest, 1, tzinfo=timezone.utc)
@@ -110,7 +112,9 @@ def get_window_events_over_period(year, month_of_interest, day_range, event_buck
             )
             for item in data_afk
         ]
-        not_afk_events = aw_query.functions.filter_keyvals(afk_events, "status", ["not-afk"])
+        not_afk_events = aw_query.functions.filter_keyvals(
+            afk_events, "status", ["not-afk"]
+        )
 
         # filter
         window_events_in_period_not_afk = aw_query.functions.filter_period_intersect(
@@ -124,87 +128,9 @@ def get_window_events_over_period(year, month_of_interest, day_range, event_buck
             "Uh oh. You probably don't have the right watcher window id or you didn't start activitywatch before \
             running the script."
         )
-        raise Exception(f"Failed to fetch data: {response.status_code}, {response.text}")
-
-
-# def get_window_events_over_period(year, month_of_interest, day_range, event_bucket_id, afk_bucket_id):
-#     client = ActivityWatchClient("test-client", testing=False)
-
-#     print("exporting afk data..")
-#     all_afk = client.export_all()["buckets"]["aw-watcher-afk_snailshale"]
-#     print("exporting event data..")
-#     all_win = client.export_all()["buckets"]["aw-watcher-window_snailshale"]
-
-#     # run through json, convert afk to events type
-#     v = all_afk.items()
-#     events = []
-#     for item in list(list(list(v)[6])[1]):
-#         e = Event(
-#             timestamp=item["timestamp"],
-#             duration=timedelta(seconds=item["duration"]),
-#             data={"status": item["data"]["status"]},
-#         )
-#         events.append(e)
-
-#     not_afk_events = aw_query.functions.filter_keyvals(events, "status", ["not-afk"])
-#     print("")
-#     print("converting window to events type...")
-#     # run through json, convert window to events type
-#     v = all_win.items()
-#     events = []
-#     for item in list(list(list(v)[6])[1]):
-#         duration = timedelta(seconds=item["duration"])
-#         e = Event(timestamp=item["timestamp"], duration=duration, data=item["data"])
-#         if duration.seconds <= 10:  # remove any really short events
-#             continue
-#         # if duration.seconds >= 3600:  # remove any really long events
-#         #     print("EVENT LASTED LONGER THAN 1 hour! Skipping!")
-#         #     print("event:")
-#         #     print(e)
-#         #     continue
-
-#         events.append(e)
-
-
-#     window_events = aw_query.functions.filter_period_intersect(events, not_afk_events)
-#     breakpoint()
-#     # window_events = events
-#     # ^^ out of curiousity... if the afk is failing... how much better do we do?
-
-#     print("len(window_events)")
-#     print(len(window_events))
-
-#     # exclude all events not during the month of interest
-#     if day_range == "all":
-#         start = datetime(year, month_of_interest, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
-#         end = datetime(
-#             year + month_of_interest // 12,
-#             (month_of_interest + 1) % 12,
-#             1,
-#             0,
-#             0,
-#             0,
-#             0,
-#             tzinfo=timezone.utc,
-#         )
-#     else:
-#         # day_range are consecutive integers of the month that we are interested in
-#         start, end = calculate_start_end_dates(year, month_of_interest, day_range)
-#     seconds = (end - start).total_seconds()
-
-#     # whole_month = Event(
-#     #     timestamp=start, duration=timedelta(seconds=seconds), data={"status": "not-afk"}
-#     # )
-#     whole_month = Event(timestamp=start, duration=timedelta(seconds=seconds), data={})
-#     # whole_month = Event(
-#     #     timestamp=start, duration=timedelta(seconds=seconds), data={"status": "not-afk"}
-#     # )
-#     print("")
-#     print("intesecting with time window..")
-#     window_events_in_period = filter_period_intersect(window_events, [whole_month])
-#     # ^^ out of curiousity... if the afk is failing... how much better do we do?
-
-#     return window_events_in_period
+        raise Exception(
+            f"Failed to fetch data: {response.status_code}, {response.text}"
+        )
 
 
 def main():
@@ -225,7 +151,9 @@ def main():
     print("")
     print("writing windowed AW events to json..")
     with open(AW_BUCKETS_UNCLASSIFIED, "w", encoding="utf-8") as jsonf:
-        jsonf.write(json.dumps(window_events_over_period, indent=4, cls=DateTimeEncoder))
+        jsonf.write(
+            json.dumps(window_events_over_period, indent=4, cls=DateTimeEncoder)
+        )
 
 
 if __name__ == "__main__":

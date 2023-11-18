@@ -19,8 +19,6 @@ from pwd import getpwnam
 
 import os
 
-from datetime import datetime, timedelta, timezone
-
 
 def check_processes():
     # This command checks if any processes with 'aw' in their name are running.
@@ -30,17 +28,21 @@ def check_processes():
 
     try:
         # Execute the check command to see if 'aw' processes are running.
-        can_check = subprocess.check_output(check_cmd, shell=True).decode("utf-8").split("\n")
+        can_check = (
+            subprocess.check_output(check_cmd, shell=True).decode("utf-8").split("\n")
+        )
         if int(can_check[0]) == 1:
             # If 'aw' processes are found, get their details.
-            processes = subprocess.check_output(cmd, shell=True).decode("utf-8").split("\n")
+            processes = (
+                subprocess.check_output(cmd, shell=True).decode("utf-8").split("\n")
+            )
         else:
             processes = ""
     except subprocess.CalledProcessError:
         # If the check command fails, send a notification to the user.
-        notify_cmd = f'notify-send "Warning! Activitywatch unable to check_processes"'
+        notify_cmd = 'notify-send "Warning! Activitywatch unable to check_processes"'
         subprocess.run(notify_cmd, shell=True)
-        return
+        return False
 
     # Extract just the process names from the process details.
     processes = [p.split(" ")[-1] for p in processes if p]
@@ -57,10 +59,7 @@ def check_processes():
 
     if missing_processes:
         # Concatenate all missing process names into a single string.
-        all_missing = ""
-        for missing in missing_processes:
-            all_missing += f"{missing} "
-
+        all_missing = " ".join(missing_processes)
         # Get the username of the currently logged-in user.
         logname = os.environ["LOGNAME"]
 
@@ -69,7 +68,9 @@ def check_processes():
 
         # Find the process ID(s) for the i3 window manager running under the current user.
         pgrep_command = "pgrep -u $LOGNAME i3"
-        result = subprocess.run(pgrep_command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, shell=True)
+        result = subprocess.run(
+            pgrep_command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, shell=True
+        )
         pids = result.stdout.decode("utf-8").strip().split("\n")
 
         # Notify the user for each PID found that Activitywatch processes are missing.

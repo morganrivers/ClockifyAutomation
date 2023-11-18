@@ -91,7 +91,6 @@ def main():
 
     print("Please enter clockify API key:")
     api_key = input()
-    data = {"x-api-key": api_key}
 
     df = pd.read_csv(CHUNKS_INPUT_CSV_LOCATION)
 
@@ -167,6 +166,8 @@ def main():
             print("Probably a mistake in the values if entered manually")
             print("Otherwise, check workspace/user id.")
             quit()
+
+    print("\nSuccess! All events put to api. Exiting program.\n")
 
 
 if __name__ == "__main__":
