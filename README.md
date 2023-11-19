@@ -17,40 +17,43 @@ This is an alpha version of an integration that should eventually be integrated 
 Need internet connection to run!
 
 1. Install activitywatch (https://activitywatch.net/).
-   a. You will need to create a work default category and create at least one child of that category with the project id. All work categorizations will be defaulted to that, and all other work codes must be children of that categorization rule.
-           Make sure the settings of activitywatch categorize the name in the format [description]\*[clockify project id hex string]
-           Take a look at https://app.clockify.me/projects  to see the project hex id's. They're in the edit project url.
-           For example: https://app.clockify.me/projects/63f2f144df25026c59e2e244/edit, 63f2f144df25026c59e2e244 is one project id string.
+   - You will need to create a work default category and create at least one child of that category with the project id. All work categorizations will be defaulted to that, and all other work codes must be children of that categorization rule.
+   - Make sure the settings of activitywatch categorize the name in the format [description]\*[clockify project id hex string]
+   - Take a look at https://app.clockify.me/projects  to see the project hex id's. They're in the edit project url.
+   - For example: https://app.clockify.me/projects/63f2f144df25026c59e2e244/edit, 63f2f144df25026c59e2e244 is one project id string.
 2. Go to clockify to also get the workspace id and put it in data/params.py. You will need to enter appropriate params.py parameters as follows:
-    "hours_off_utc" (hours your timezone is off utc. So berlin would be 1, east coast of the US would be -4)
-    "your_email": used for google calendar integration (google calendar events that are accepted with your email are counted towards your hours),
-    "month_of_interest": the month to start of looking at. can be changed at runtime.
-    "day_range": range of days within the month, or "all" days. Can be changed at runtime. Inclusive, so [1, 31] includes day 1 and day 31.
-    "year": year for time analysis,
-    "minutes_timeblock_clockify": minutes to chunk time into,
-    "seconds_per_timeblock_threshold": seconds required per time block to consider this a period when you worked. Not all minutes have to be spent working to count it as a "work" timeblock.
-    "clockify_workspace_id": You can find this in your clockify settings.
-    "aw_work_tree_root": you need to define a clockify work tree root name in your clockify settings, so all hours are children of this generic work and project id. Project id comes at end of this string, after the "*" separator character.
-    "clockify_api_key": You can find this in your clockify settings
-   "event_bucket_id": should be of the form "aw-watcher-window_[hostname]" where on linux the hostname is determined by entering the command "uname -n"
-"afk_bucket_id": should be of the form "aw-watcher-afk_[hostname]" where on linux the hostname is determined by entering the command "uname -n"
-    "secret_google_calendar_address": you can find this in your google calendar settings. Usually of form "https://calendar.google.com/calendar/ical/[email]/[privatestring]/basic.ics",    
+   - "hours_off_utc" (hours your timezone is off utc. So berlin would be 1, east coast of the US would be -4)
+   - "your_email": used for google calendar integration (google calendar events that are accepted with your email are counted towards your hours),
+   - "month_of_interest": the month to start of looking at. can be changed at runtime.
+   - "day_range": range of days within the month, or "all" days. Can be changed at runtime. Inclusive, so [1, 31] includes day 1 and day 31.
+   - "year": year for time analysis.
+   - "minutes_timeblock_clockify": minutes to chunk time into.
+   - "seconds_per_timeblock_threshold": seconds required per time block to consider this a period when you worked. Not all minutes have to be spent working to count it as a "work" timeblock.
+   - "clockify_workspace_id": You can find this in your clockify settings.
+   - "aw_work_tree_root": you need to define a clockify work tree root name in your clockify settings, so all hours are children of this generic work and project id. Project id comes at end of this string, after the "*" separator character.
+   - "clockify_api_key": You can find this in your clockify settings.
+   - "event_bucket_id": should be of the form "aw-watcher-window_[hostname]" where on linux the hostname is determined by entering the command "uname -n"
+   - "afk_bucket_id": should be of the form "aw-watcher-afk_[hostname]" where on linux the hostname is determined by entering the command "uname -n"
+   - "secret_google_calendar_address": you can find this in your google calendar settings. Usually of form "https://calendar.google.com/calendar/ical/[email]/[privatestring]/basic.ics",    
 
-3. Either: set up automated google calendar integration with OAuth2, or go to your google calendar settings and export the appropriate ics, then move it to data/gcal.ics in the repository. 
-     to Export your google calendar as gcal.ics. (Settings -> Click on Calendar on left -> Export Calendar). May need to unzip. Example: 
-        unzip morgan @ allfed.info.ical.zip
-        HINT: you probably want to confirm yes to any prompts here.
-        mv morgan\@allfed.info.ics ~/Code/ClockifyAutomation/data/gcal.ics
-4. [optional, and only if on linux] Install calcurse. Or if on windows, some other quick calendar inspection tool. Google calendar may be fine for this purpose.
-        $ calcurse -P #CAUTION: PURGES ALL DATA PREVIOUSLY STORED IN CALCURSE
-        $ calcurse -i data/calendar_output_raw.ics 
-        $ calcurse
-        Now you can inspect the calendar output, make sure it's not missing anything (can compare to month's data/gcal_shortened.ics by running 
-        $ calcurse -i data/gcal_shortened.ics;calcurse
-        and you'll see both)
-
-        USEFUL COMMAND:
-        calcurse -P; calcurse -i chunked_events.ics ; calcurse
+4. Either: set up automated google calendar integration with OAuth2, or go to your google calendar settings and export the appropriate ics, then move it to data/gcal.ics in the repository.
+   - To Export your google calendar as gcal.ics. (Settings -> Click on Calendar on left -> Export Calendar). May need to unzip. Example:
+```
+$ unzip morgan @ allfed.info.ical.zip
+$ # HINT: you probably want to confirm yes to any prompts here.
+$ mv morgan\@allfed.info.ics ~/Code/ClockifyAutomation/data/gcal.ics
+```
+6. [optional, and only if on linux] Install calcurse. Or if on windows, some other quick calendar inspection tool. Google calendar may be fine for this purpose.
+```
+$ calcurse -P #CAUTION: PURGES ALL DATA PREVIOUSLY STORED IN CALCURSE
+$ calcurse -i data/calendar_output_raw.ics 
+$ calcurse
+```
+Now you can inspect the calendar output, make sure it's not missing anything (can compare to month's data/gcal_shortened.ics by running `calcurse -i data/gcal_shortened.ics;calcurse` and you'll see both
+USEFUL COMMAND:
+```
+calcurse -P; calcurse -i chunked_events.ics ; calcurse
+```
 
 Now you're ready to run. You'll need your clockify api key ready to paste in for this.
 
