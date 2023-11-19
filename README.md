@@ -21,7 +21,21 @@ Need internet connection to run!
            Make sure the settings of activitywatch categorize the name in the format [description]\*[clockify project id hex string]
            Take a look at https://app.clockify.me/projects  to see the project hex id's. They're in the edit project url.
            For example: https://app.clockify.me/projects/63f2f144df25026c59e2e244/edit, 63f2f144df25026c59e2e244 is one project id string.
-2. Go to clockify to also get the workspace id and put it in data/params.py
+2. Go to clockify to also get the workspace id and put it in data/params.py. You will need to enter appropriate params.py parameters as follows:
+    "hours_off_utc" (hours your timezone is off utc. So berlin would be 1, east coast of the US would be -4)
+    "your_email": used for google calendar integration (google calendar events that are accepted with your email are counted towards your hours),
+    "month_of_interest": the month to start of looking at. can be changed at runtime.
+    "day_range": range of days within the month, or "all" days. Can be changed at runtime. Inclusive, so [1, 31] includes day 1 and day 31.
+    "year": year for time analysis,
+    "minutes_timeblock_clockify": minutes to chunk time into,
+    "seconds_per_timeblock_threshold": seconds required per time block to consider this a period when you worked. Not all minutes have to be spent working to count it as a "work" timeblock.
+    "clockify_workspace_id": You can find this in your clockify settings.
+    "aw_work_tree_root": you need to define a clockify work tree root name in your clockify settings, so all hours are children of this generic work and project id. Project id comes at end of this string, after the "*" separator character.
+    "clockify_api_key": You can find this in your clockify settings
+   "event_bucket_id": should be of the form "aw-watcher-window_[hostname]" where on linux the hostname is determined by entering the command "uname -n"
+"afk_bucket_id": should be of the form "aw-watcher-afk_[hostname]" where on linux the hostname is determined by entering the command "uname -n"
+    "secret_google_calendar_address": you can find this in your google calendar settings. Usually of form "https://calendar.google.com/calendar/ical/[email]/[privatestring]/basic.ics",    
+
 3. Either: set up automated google calendar integration with OAuth2, or go to your google calendar settings and export the appropriate ics, then move it to data/gcal.ics in the repository. 
      to Export your google calendar as gcal.ics. (Settings -> Click on Calendar on left -> Export Calendar). May need to unzip. Example: 
         unzip morgan @ allfed.info.ical.zip
