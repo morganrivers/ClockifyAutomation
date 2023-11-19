@@ -39,9 +39,9 @@ Need internet connection to run!
 4. Either: set up automated google calendar integration with OAuth2, or go to your google calendar settings and export the appropriate ics, then move it to data/gcal.ics in the repository.
    - To Export your google calendar as gcal.ics. (Settings -> Click on Calendar on left -> Export Calendar). May need to unzip. Example:
 ```
-$ unzip morgan @ allfed.info.ical.zip
+$ unzip your_email@domain.com.ical.zip
 $ # HINT: you probably want to confirm yes to any prompts here.
-$ mv morgan\@allfed.info.ics ~/Code/ClockifyAutomation/data/gcal.ics
+$ mv your_email@domain.com.ics ~/Code/ClockifyAutomation/data/gcal.ics
 ```
 6. [optional, and only if on linux] Install calcurse. Or if on windows, some other quick calendar inspection tool. Google calendar may be fine for this purpose.
 ```
@@ -64,7 +64,7 @@ python3 run_conversion.py
 
 Results should be online now. (Note:Don't upload to clockify twice! It will duplicate the records.)  
 
-If you wish, you can also now fill in your preferred invoice parameters in data/invoice_params.json. You'll need to manually enter the month, hours that month, etc. It generates a pdf in data/ called "Invoice_[invoice number you entered].pdf".
+If you wish, you can also now fill in your preferred invoice parameters in `data/invoice_params.json`. You'll need to manually enter the month, hours that month, etc. It generates a pdf in `data/` called `Invoice_[invoice number you entered].pdf`.
 
 # Other configuration
 
@@ -112,7 +112,7 @@ That launches a cron job to run the `alert_user_if_aw_not_running.py` script eve
 
 ## Final note on installation
 
-You can find both `alert_user_if_aw_not_running.py` and `backup_aw.sh` in the scripts/ folder in this repository.
+You can find both `alert_user_if_aw_not_running.py` and `backup_aw.sh` in the `scripts/` folder in this repository.
 These are specific to i3 but can be modified for other use cases. Other methods of startup, checking, and backups can also accomplish similar results.
 
 # Status and note on fair usage of the software.
