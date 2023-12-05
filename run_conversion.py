@@ -132,7 +132,7 @@ while True:
 
     print("year: " + str(year))
     print("month_of_interest: " + str(month_of_interest))
-    print("day range:" + str(day_range))
+    print("day range: " + str(day_range))
     print(
         'Day range is first to last day inclusive, and also you can put "all" as well for the whole month'
     )

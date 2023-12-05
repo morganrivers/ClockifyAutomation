@@ -80,7 +80,9 @@ def print_summary_for_user(
     print("Total Hours worked in time period in question:")
     print(total_hours_worked)
 
-    total_weeks_window = (time_end - time_start) / (60 * 60 * 24 * 7)  # total duration in units 7*24 hours
+    total_weeks_window = (time_end - time_start) / (
+        60 * 60 * 24 * 7
+    )  # total duration in units 7*24 hours
 
     # https://stackoverflow.com/questions/56005112/how-to-find-a-number-of-workdays-between-two-dates-in-python
     weekdays = np.busday_count(start_date, end_date)
@@ -94,7 +96,9 @@ def print_summary_for_user(
     print((total_hours_worked / weekdays) * 5)
 
     print("weekdays * 8: " + str(weekdays * 8))
-    print("Hours that would remain until meeting a 40 hour week (weekdays * 8 - total_hours_worked):")
+    print(
+        "Hours that would remain until meeting a 40 hour week (weekdays * 8 - total_hours_worked):"
+    )
     print(weekdays * 8 - total_hours_worked)
     print("NOTE: BILLABLE HOURS AND NONBILLABLE HOURS ARE COMBINED FOR NUMBERS ABOVE")
 
@@ -111,7 +115,9 @@ def main():
     params = json.load(open(JSON_PARAMETERS_LOCATION, "r"))
 
     BLOCK_MINUTES = dict(params.items())["minutes_timeblock_clockify"]
-    SECONDS_PER_BLOCK_THRESHOLD = dict(params.items())["seconds_per_timeblock_threshold"]
+    SECONDS_PER_BLOCK_THRESHOLD = dict(params.items())[
+        "seconds_per_timeblock_threshold"
+    ]
 
     year = dict(params.items())["year"]
     month_of_interest = dict(params.items())["month_of_interest"]
@@ -130,7 +136,9 @@ def main():
     # time_start = (
     #     df_sorted.loc[0].start_timestamp - df_sorted.loc[0].start_timestamp % blk
     # )
-    start_date_raw, end_date_raw = calculate_start_end_dates(year, month_of_interest, day_range)
+    start_date_raw, end_date_raw = calculate_start_end_dates(
+        year, month_of_interest, day_range
+    )
 
     start_date = start_date_raw.date()
 
@@ -152,13 +160,21 @@ def main():
 
         # select events which end after the block-start
         # and start before the block-end
-        events = df_sorted[df_sorted["end_timestamp"] > time_block_start][df_sorted["start_timestamp"] < time_block_end]
+        events = df_sorted[df_sorted["end_timestamp"] > time_block_start][
+            df_sorted["start_timestamp"] < time_block_end
+        ]
         if len(events) == 0:
             continue
 
         durations = {}
         for index, event in events.iterrows():
-            dpb = event["Description"] + "*" + event["Project"] + "*" + str(event["Billable"])
+            dpb = (
+                event["Description"]
+                + "*"
+                + event["Project"]
+                + "*"
+                + str(event["Billable"])
+            )
 
             # evaluate the total amount of time of each event in the block
 
@@ -170,14 +186,20 @@ def main():
 
             # if the event starts before the block, reduce its duration
             if event["start_timestamp"] < time_block_start:
-                durations[dpb] = durations[dpb] - (time_block_start - event["start_timestamp"])
+                durations[dpb] = durations[dpb] - (
+                    time_block_start - event["start_timestamp"]
+                )
 
             # if the event ends after the block, reduce its duration
             if event["end_timestamp"] > time_block_end:
-                durations[dpb] = durations[dpb] - (event["end_timestamp"] - time_block_end)
+                durations[dpb] = durations[dpb] - (
+                    event["end_timestamp"] - time_block_end
+                )
 
         # select the dominant event description
-        max_keys = [key for key, value in durations.items() if value == max(durations.values())]
+        max_keys = [
+            key for key, value in durations.items() if value == max(durations.values())
+        ]
         dominant_event = max_keys[0]
         dominant_event_duration = durations[max_keys[0]]
 
@@ -198,7 +220,8 @@ def main():
         if (
             len(df_new) > 0
             and df_new.loc[len(df_new) - 1, "Description"] == description
-            and int(df_new.loc[len(df_new) - 1, "end_timestamp"]) == int(time_block_start)
+            and int(df_new.loc[len(df_new) - 1, "end_timestamp"])
+            == int(time_block_start)
         ):
             df_new.loc[len(df_new) - 1, "End Time"] = end_string
             df_new.loc[len(df_new) - 1, "end_timestamp"] = time_block_end
@@ -217,7 +240,8 @@ def main():
                 ]
             )
             df_new = pd.concat([df_new, tmp], axis=0, ignore_index=True)
-
+    print("len(df_new)")
+    print(len(df_new))
     df_chunks = df_new.sort_values(by="start_timestamp")
     df_chunks.reset_index(drop=True, inplace=True)
     df_chunks.to_csv(OUTPUT_CHUNKED_EVENTS_CSV_LOCATION, index=False)

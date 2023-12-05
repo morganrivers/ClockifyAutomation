@@ -71,7 +71,6 @@ def main():
             row1["start_timestamp"] == row2["start_timestamp"]
             and row1["end_timestamp"] == row2["end_timestamp"]
         ):
-
             df_sorted.drop(axis=0, index=index2, inplace=True)  # delete this event
             df_sorted.reset_index(drop=True, inplace=True)
             index1 = index1 - 1
@@ -92,7 +91,6 @@ def main():
         #       [ ]  <--- row2
         # overlaps at start of second item
         if row1["start_timestamp"] < row2["start_timestamp"] < row1["end_timestamp"]:
-
             # assign start of 2 to end of 1
             df_sorted.loc[index2, "start_timestamp"] = row1["end_timestamp"]
             df_sorted.loc[index2, "Start Time"] = row1["End Time"]

@@ -12,7 +12,7 @@ from aw_query.functions import filter_period_intersect
 import aw_query
 
 import json
-
+import sys
 import requests
 
 JSON_PARAMETERS_LOCATION = "../data/params.json"
@@ -102,7 +102,10 @@ def get_window_events_over_period(
             # Create an Event object
             event = Event(timestamp=timestamp, duration=duration, data=item["data"])
             window_events_in_period.append(event)
-
+        if len(window_events_in_period) == 0:
+            print("There is no activity watch data for this period.")
+            print("We haven't really dealt with this edge case. Exiting.")
+            sys.exit()
         # Convert AFK events from JSON into Event objects
         afk_events = [
             Event(
@@ -147,8 +150,6 @@ def main():
     window_events_over_period = get_window_events_over_period(
         year, month_of_interest, day_range, event_bucket_id, afk_bucket_id
     )
-
-    print("")
     print("writing windowed AW events to json..")
     with open(AW_BUCKETS_UNCLASSIFIED, "w", encoding="utf-8") as jsonf:
         jsonf.write(
