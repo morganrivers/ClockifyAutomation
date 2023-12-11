@@ -300,7 +300,7 @@ def print_summary_and_maybe_process_actions(action_stack, rules):
     # Prompt the user for their choice
     user_choice = (
         input(
-            "Please choose an option: 'e' to save and exit cate loop, 'q' to quit without saving: "
+            "Please choose an option: 'e' to save and exit categorization loop, 'q' to quit without saving: "
         )
         .strip()
         .lower()

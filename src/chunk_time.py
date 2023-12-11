@@ -6,9 +6,9 @@ from ics import Event, Calendar
 import numpy as np
 import json
 import pandas as pd
-import calendar
 
 
+# The function to be tested
 def calculate_start_end_dates(year, month_of_interest, day_range):
     if day_range == "all":
         start_date_raw = datetime.datetime(
@@ -18,39 +18,77 @@ def calculate_start_end_dates(year, month_of_interest, day_range):
             tzinfo=timezone.utc,
         )
         end_date_raw = datetime.datetime(
-            year + month_of_interest // 12,
-            (month_of_interest) % 12 + 1,
+            year if month_of_interest < 12 else year + 1,
+            month_of_interest % 12 + 1,
             1,
-            0,
-            0,
-            0,
-            0,
+            tzinfo=timezone.utc,
+        )
+    else:
+        start_day = day_range[0]
+        end_day = day_range[1]
+
+        start_date_raw = datetime.datetime(
+            year,
+            month_of_interest,
+            start_day,
+            tzinfo=timezone.utc,
+        )
+        end_date_raw = datetime.datetime(
+            year,
+            month_of_interest,
+            end_day,
+            23,  # End of the day
+            59,
+            59,
+            999999,  # Maximum microsecond value
             tzinfo=timezone.utc,
         )
 
-        return start_date_raw, end_date_raw
-
-    start_day = day_range[0]
-    end_day = day_range[1]
-
-    start_date_raw = datetime.datetime(
-        year,
-        month_of_interest,
-        start_day,
-        tzinfo=timezone.utc,
-    )
-    end_date_raw = datetime.datetime(
-        year + month_of_interest // 12,
-        (month_of_interest),
-        end_day,
-        23,  # End of the day
-        59,
-        59,
-        999999,  # Maximum microsecond value
-        tzinfo=timezone.utc,
-    )
-
     return start_date_raw, end_date_raw
+
+
+# # Test cases
+# def test_calculate_start_end_dates():
+#     test_cases = [
+#         # Test case for December with specific day range
+#         {
+#             "year": 2023,
+#             "month_of_interest": 12,
+#             "day_range": [1, 10],
+#             "expected_start_date": datetime.datetime(2023, 12, 1, 0, 0, 0, tzinfo=timezone.utc),
+#             "expected_end_date": datetime.datetime(2023, 12, 10, 23, 59, 59, 999999, tzinfo=timezone.utc)
+#         },
+#         # Test case for non-December month with specific day range
+#         {
+#             "year": 2023,
+#             "month_of_interest": 11,
+#             "day_range": [1, 10],
+#             "expected_start_date": datetime.datetime(2023, 11, 1, 0, 0, 0, tzinfo=timezone.utc),
+#             "expected_end_date": datetime.datetime(2023, 11, 10, 23, 59, 59, 999999, tzinfo=timezone.utc)
+#         },
+#         # Test case for "all" day range
+#         {
+#             "year": 2023,
+#             "month_of_interest": 12,
+#             "day_range": "all",
+#             "expected_start_date": datetime.datetime(2023, 12, 1, 0, 0, 0, tzinfo=timezone.utc),
+#             "expected_end_date": datetime.datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+#         }
+#     ]
+
+#     for i, test in enumerate(test_cases):
+#         start_date, end_date = calculate_start_end_dates(
+#             test["year"],
+#             test["month_of_interest"],
+#             test["day_range"]
+#         )
+
+#         assert start_date == test["expected_start_date"], f"Test {i}: Start date mismatch"
+#         assert end_date == test["expected_end_date"], f"Test {i}: End date mismatch"
+#         print(f"Test {i} passed.")
+
+# # Run the tests
+# test_calculate_start_end_dates()
 
 
 def print_summary_for_user(
@@ -80,9 +118,9 @@ def print_summary_for_user(
     print("Total Hours worked in time period in question:")
     print(total_hours_worked)
 
-    total_weeks_window = (time_end - time_start) / (
-        60 * 60 * 24 * 7
-    )  # total duration in units 7*24 hours
+    # total_weeks_window = (time_end - time_start) / (
+    #     60 * 60 * 24 * 7
+    # )  # total duration in units 7*24 hours
 
     # https://stackoverflow.com/questions/56005112/how-to-find-a-number-of-workdays-between-two-dates-in-python
     weekdays = np.busday_count(start_date, end_date)
@@ -240,8 +278,6 @@ def main():
                 ]
             )
             df_new = pd.concat([df_new, tmp], axis=0, ignore_index=True)
-    print("len(df_new)")
-    print(len(df_new))
     df_chunks = df_new.sort_values(by="start_timestamp")
     df_chunks.reset_index(drop=True, inplace=True)
     df_chunks.to_csv(OUTPUT_CHUNKED_EVENTS_CSV_LOCATION, index=False)
@@ -299,7 +335,6 @@ def main():
             new_calendar.events.add(event)
 
         previous_week_index = week_index
-
     print_summary_for_user(
         week_index,
         this_week_hours,

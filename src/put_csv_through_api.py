@@ -89,8 +89,7 @@ def main():
 
     workspaceid = dict(params.items())["clockify_workspace_id"]
 
-    print("Please enter clockify API key:")
-    api_key = input()
+    api_key = dict(params.items())["clockify_api_key"]
 
     df = pd.read_csv(CHUNKS_INPUT_CSV_LOCATION)
 
