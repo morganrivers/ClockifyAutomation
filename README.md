@@ -36,14 +36,14 @@ Need internet connection to run!
    - "afk_bucket_id": should be of the form "aw-watcher-afk_[hostname]" where on linux the hostname is determined by entering the command "uname -n"
    - "secret_google_calendar_address": you can find this in your google calendar settings. Usually of form "https://calendar.google.com/calendar/ical/[email]/[privatestring]/basic.ics",    
 
-4. Either: set up automated google calendar integration with OAuth2, or go to your google calendar settings and export the appropriate ics, then move it to data/gcal.ics in the repository.
+3. Either: set up automated google calendar integration with OAuth2, or go to your google calendar settings and export the appropriate ics, then move it to data/gcal.ics in the repository.
    - To Export your google calendar as gcal.ics. (Settings -> Click on Calendar on left -> Export Calendar). May need to unzip. Example:
 ```
 $ unzip your_email@domain.com.ical.zip
 $ # HINT: you probably want to confirm yes to any prompts here.
 $ mv your_email@domain.com.ics ~/Code/ClockifyAutomation/data/gcal.ics
 ```
-6. [optional, and only if on linux] Install calcurse. Or if on windows, some other quick calendar inspection tool. Google calendar may be fine for this purpose.
+4. [optional, and only if on linux] Install calcurse. Or if on windows, some other quick calendar inspection tool. Google calendar may be fine for this purpose.
 ```
 $ calcurse -P #CAUTION: PURGES ALL DATA PREVIOUSLY STORED IN CALCURSE
 $ calcurse -i data/calendar_output_raw.ics 
