@@ -62,7 +62,7 @@ Run in a terminal
 python3 run_conversion.py
 ```
 
-Results should be online now. (Note:Don't upload to clockify twice! It will duplicate the records.)  
+Results should be online now.  
 
 If you wish, you can also now fill in your preferred invoice parameters in `data/invoice_params.json`. You'll need to manually enter the month, hours that month, etc. It generates a pdf in `data/` called `Invoice_[invoice number you entered].pdf`.
 
