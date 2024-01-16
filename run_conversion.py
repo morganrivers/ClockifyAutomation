@@ -58,11 +58,18 @@ def get_custom_day_range():
 
 # Function to handle user input for month and day range
 def handle_user_input():
-    day_range = ""
-    month_of_interest = -1
+    params = json.load(open(JSON_PARAMETERS_LOCATION, "r"))
+
+    month_of_interest = dict(params.items())["month_of_interest"]
+    day_range = dict(params.items())["day_range"]
+    year = dict(params.items())["year"]
+
     while True:
         response = (
             input(
+                f"Year analyzing (must alter in data/params.json): {year}\n"
+                f"Default month analyzing: {month_of_interest}\n"
+                f"Default day range analyzing: {day_range}\n"
                 "Please enter 'j' for using the existing data/params.json month and day range, or 'm' for entering "
                 "custom month and/or day range to use and update the params file: ",
             )
@@ -75,6 +82,7 @@ def handle_user_input():
             break
         else:
             print("Please enter either 'j' or 'm'.")
+
     if response == "m":
         # Ask for custom month and day range
         while True:
@@ -90,11 +98,6 @@ def handle_user_input():
         write_to_json(month_of_interest, day_range)
     else:
         print("Using data from params.json.\n")
-
-        params = json.load(open(JSON_PARAMETERS_LOCATION, "r"))
-
-        month_of_interest = dict(params.items())["month_of_interest"]
-        day_range = dict(params.items())["day_range"]
 
     return month_of_interest, day_range
 

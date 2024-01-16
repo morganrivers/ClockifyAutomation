@@ -9,9 +9,10 @@ invoice_number = dict(params.items())["invoice_number"]
 hourly_rate = dict(params.items())["hourly_rate"]
 total_hours = dict(params.items())["total_hours"]
 month_for_invoice = dict(params.items())["month_for_invoice"]
-current_month = dict(params.items())["current_month"]
-current_day = dict(params.items())["current_day"]
-current_year = dict(params.items())["current_year"]
+year_for_invoice = dict(params.items())["year_for_invoice"]
+created_month = dict(params.items())["created_month"]
+created_day = dict(params.items())["created_day"]
+created_year = dict(params.items())["created_year"]
 due_month = dict(params.items())["due_month"]
 due_day = dict(params.items())["due_day"]
 due_year = dict(params.items())["due_year"]
@@ -23,9 +24,10 @@ invoice_number_int = int(invoice_number)
 total_hours_float = float(total_hours)
 hourly_rate_float = float(hourly_rate)
 
-created = current_month + " " + current_day + ", " + current_year
+created = created_month + " " + created_day + ", " + created_year
 due = due_month + " " + due_day + ", " + due_year
 month_title = month_for_invoice.upper()
+year_title = year_for_invoice.upper()
 multiplied_total_float = total_hours_float * hourly_rate_float
 multiplied_total = str(total_hours_float * hourly_rate_float)
 overall_total = multiplied_total
@@ -216,7 +218,7 @@ output = (
                     <td>Research Associate Compensation, month of """
     + month_for_invoice
     + """, """
-    + current_year
+    + year_for_invoice
     + """</td>
                     <td></td>
                     <td>"""

@@ -1,11 +1,12 @@
 {
     "invoice_number":"16",
-    "hourly_rate":"8961187000000",//https://www.grunge.com/165794/how-much-money-does-jeff-bezos-make-per-hour/
+    "hourly_rate":"8961187000000, I'm Jeff Bezos",
     "total_hours":"10",
     "month_for_invoice":"May",
-    "current_month":"June",
-    "current_day":"15",
-    "current_year":"2022",
+    "year_for_invoice":"2022",
+    "created_month":"June",
+    "created_day":"15",
+    "created_year":"2022",
     "due_month":"June",
     "due_day":"15",
     "due_year":"2022",
