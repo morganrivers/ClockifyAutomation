@@ -1,6 +1,7 @@
 # from Tkinter import Tk     # from tkinter import Tk for Python 3.x
 from tkinter.filedialog import askopenfilename
 import os
+from src import delete_aw_events
 from src import filter_ical
 from src import get_aw_buckets
 from src import show_projects
@@ -140,6 +141,9 @@ while True:
         'Day range is first to last day inclusive, and also you can put "all" as well for the whole month'
     )
     print()
+    print("Clearing private data from AW...")
+    delete_aw_events.main(month=month_of_interest, year=year)
+    print()
     # show project id's
     response = input("show project id list? (y/n)")
     if "y" in response.lower():
@@ -149,6 +153,7 @@ while True:
         gcal_API_to_csv.main()
     else:
         filter_ical.main(gcal)
+
     get_aw_buckets.main()
     categorize_aw_events.main()
     gcal_to_csv.main()
