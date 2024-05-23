@@ -300,7 +300,7 @@ def print_summary_and_maybe_process_actions(action_stack, rules):
     # Prompt the user for their choice
     user_choice = (
         input(
-            "Please choose an option: 'e' to save and exit categorization loop, 'q' to quit without saving: "
+            "Please choose an option: 'e' to save and exit categorization loop, 'q' to exit loop without saving: "
         )
         .strip()
         .lower()
@@ -316,7 +316,7 @@ def print_summary_and_maybe_process_actions(action_stack, rules):
             print("Exiting categorization loop without saving changes.")
             return
         else:
-            print("Invalid option selected.")
+            print("\033[91mInvalid option selected.\033[0m")
 
 
 # Function to process the action stack
@@ -331,8 +331,8 @@ def process_action_stack_to_json_and_ensure_rules_match(action_stack, rules):
 
     if not rules_are_same(loaded_rules_from_json, rules):
         print(
-            "WARNING: rules added do not correspond to rules in program's memory after saving. You might need to "
-            "fix the json directly. Sorry about that."
+            "\033[93mWARNING: rules added do not correspond to rules in program's memory after saving. You might need "
+            "to fix the json directly. Sorry about that.\033[0m"
         )
 
 
@@ -514,7 +514,7 @@ def remove_rule(rules, category_name):
     return rules
 
 
-def get_input_from_user(description, details, rules):
+def get_input_from_user(description, details, rules, skipped_descriptions):
     # Show rules and prompt for input
     category_name_by_rule_number = show_rules_and_get_category_numbers(rules)
     while True:
@@ -533,7 +533,7 @@ def get_input_from_user(description, details, rules):
                     "Remaining event durations all less than 30 seconds. No reason to continue to categorize."
                 )
                 print(
-                    "Would you like to save and exit categorization ('e'), or quit without saving ('q')?"
+                    "Would you like to save and exit categorization ('e'), or exit categorization without saving ('q')?"
                 )
                 response = input()
                 if response == "e":
@@ -541,7 +541,7 @@ def get_input_from_user(description, details, rules):
                 elif response == "q":
                     return "quit_no_save", None
                 else:
-                    print("Invalid input. Try again.")
+                    print("\033[91mInvalid input. Try again.\033[0m")
 
         # Check if the duration is less than 5 minutes
         if duration_td.total_seconds() < 300:
@@ -581,10 +581,12 @@ def get_input_from_user(description, details, rules):
                 if not regex_to_add:
                     regex_to_add = description.strip()
 
+                print("regex_to_add")
+                print(regex_to_add)
                 # Check if regex_to_add is valid
                 if any(char in regex_to_add for char in "|*"):
                     print(
-                        "Invalid rule name, no '|' or '*' or empty rule allowed. Please try again."
+                        "\033[91m\nInvalid rule name, no '|' or '*' or empty rule allowed. Please try again.\033[0m"
                     )
                     continue
 
@@ -593,6 +595,7 @@ def get_input_from_user(description, details, rules):
         elif response == "u":
             return "undo", None
         elif response == "s":
+            skipped_descriptions.add(description)
             return "skip", None
         elif response == "n":
             name = input("\nEnter the name of the new category: ").strip()
@@ -615,7 +618,90 @@ def get_input_from_user(description, details, rules):
         elif response == "q":
             return "quit_no_save", None
         else:
-            print("\nInvalid input. Please try again.")
+            print("\n\033[91mInvalid input. Please try again.\033[0m")
+
+
+1
+
+
+def prompt_user_for_categorization(events, rules):
+    action_stack = []
+    continue_categorization = True
+    skipped_descriptions = set()
+
+    original_rules = copy.deepcopy(rules)
+
+    first_loop = True
+    while True:
+        if not first_loop:
+            print_difference_between_rules_lists(original_rules, rules)
+        first_loop = False
+        categorized_events = categorize_and_show_rules_used(events, rules, False)
+
+        uncategorized_events = get_uncategorized_events(categorized_events)
+        sorted_event_groups = get_sorted_event_groups(uncategorized_events)
+
+        if not sorted_event_groups:
+            break  # Exit if there are no more event groups to process
+
+        for description, details in sorted_event_groups:
+            if description in skipped_descriptions:
+                continue  # Skip descriptions that have been skipped before
+
+            action, action_details = get_input_from_user(
+                description, details, rules, skipped_descriptions
+            )
+
+            if action == "add":
+                category_name, regex_to_add = action_details
+
+                action_stack.append(("add", category_name, regex_to_add))
+                rules = add_pattern_to_rules(rules, category_name, regex_to_add)
+
+                break  # Exit the for-loop to refresh the sorted_event_groups
+
+            if action == "new":
+                category_name = action_details["category_name"]
+                regex_to_add = action_details["regex_to_add"]
+
+                action_stack.append(("new", category_name, regex_to_add))
+                rules = add_new_rule(
+                    rules, category_name, regex_to_add, ignore_case=False
+                )
+                break  # Exit the for-loop to refresh the sorted_event_groups
+
+            elif action == "undo":
+                if action_stack:
+                    last_action = action_stack.pop()
+                    if last_action[0] == "add":
+                        category_name, regex_to_remove = last_action[1:]
+
+                        rules = remove_pattern_from_rules(
+                            rules, category_name, regex_to_remove
+                        )
+                    elif last_action[0] == "new":
+                        rules = remove_rule(rules, category_name)
+                    else:
+                        print(
+                            "Last action must have been adding regex or"
+                            "making new rule to undo. Nothing was undone.\n"
+                        )
+                        input("Press enter to continue.")
+
+                    break  # Exit the for-loop to refresh the sorted_event_groups
+                else:
+                    print("No actions to undo.")
+
+            elif action == "skip":
+                continue  # Skip this event and continue with the next one
+
+            elif action == "save_and_exit":
+                # we ran through all the rules and classified everything
+                print_summary_and_maybe_process_actions(action_stack, rules)
+                return rules  # Return the updated rules after exiting the while loop
+
+            elif action == "quit_no_save":
+                return original_rules
 
 
 def rules_are_same(rules1, rules2):
@@ -697,82 +783,71 @@ def print_difference_between_rules_lists(rule_list1, rule_list2):
         print("")
 
 
-def prompt_user_for_categorization(events, rules):
-    action_stack = []
-    continue_categorization = True
+def get_matching_rules(events, classes):
+    matching_rules_dict = {}
 
-    original_rules = copy.deepcopy(rules)
+    for event in events:
+        for category, rule in classes:
+            if rule.regex:
+                regex_patterns = rule.regex.pattern.split("|")
+                for regex_str in regex_patterns:
+                    if re.search(
+                        regex_str,
+                        event.data.get("title", ""),
+                        re.IGNORECASE if rule.ignore_case else 0,
+                    ):
+                        if str(category) not in matching_rules_dict:
+                            matching_rules_dict[str(category)] = {}
+                        if regex_str not in matching_rules_dict[str(category)]:
+                            matching_rules_dict[str(category)][regex_str] = {}
+                        title = event.data.get("title", "")
+                        if title not in matching_rules_dict[str(category)][regex_str]:
+                            matching_rules_dict[str(category)][regex_str][title] = []
+                        matching_rules_dict[str(category)][regex_str][title].append(
+                            event.data
+                        )
 
-    first_loop = True
+    return matching_rules_dict
+
+
+def print_matching_rules(matching_rules_dict):
+    for category, rules in matching_rules_dict.items():
+        print(f"\n\nCategory: {category}")
+        output = []
+        for regex_str, titles in rules.items():
+            unique_titles = ", ".join(titles.keys())
+            output.append(f"Rule: {regex_str}\nUnique Titles: {unique_titles}")
+        print("\n\n".join(output))
+
+
+def show_rules_used_for_categorizing(events, rules):
+    matching_rules_dict = get_matching_rules(events, rules)
+    print("rules used for categorization:")
+    print_matching_rules(matching_rules_dict)
+
+
+def categorize_and_show_rules_used(events, rules, show_specific_categorization):
+    if show_specific_categorization:
+        show_rules_used_for_categorizing(events, rules)
+        input("\nRule matched are shown above. Press any key to continue.\n")
+
+    return aw_transform.categorize(events, rules)
+
+
+def prompt_user_for_view_categorizations():
     while True:
-        if not first_loop:
-            print_difference_between_rules_lists(original_rules, rules)
-        first_loop = False
-        categorized_events = aw_transform.categorize(events, rules)
-
-        uncategorized_events = get_uncategorized_events(categorized_events)
-        sorted_event_groups = get_sorted_event_groups(uncategorized_events)
-
-        if not sorted_event_groups:
-            break  # Exit if there are no more event groups to process
-
-        for description, details in sorted_event_groups:
-            action, action_details = get_input_from_user(description, details, rules)
-
-            if action == "add":
-                category_name, regex_to_add = action_details
-
-                action_stack.append(("add", category_name, regex_to_add))
-                rules = add_pattern_to_rules(rules, category_name, regex_to_add)
-
-                break  # Exit the for-loop to refresh the sorted_event_groups
-
-            if action == "new":
-                category_name = action_details["category_name"]
-                regex_to_add = action_details["regex_to_add"]
-
-                action_stack.append(("new", category_name, regex_to_add))
-                rules = add_new_rule(
-                    rules, category_name, regex_to_add, ignore_case=False
-                )
-                break  # Exit the for-loop to refresh the sorted_event_groups
-
-            elif action == "undo":
-                if action_stack:
-                    last_action = action_stack.pop()
-                    if last_action[0] == "add":
-                        category_name, regex_to_remove = last_action[1:]
-
-                        rules = remove_pattern_from_rules(
-                            rules, category_name, regex_to_remove
-                        )
-                    elif last_action[0] == "new":
-                        rules = remove_rule(rules, category_name)
-                    else:
-                        print(
-                            "Last action must have been adding regex or"
-                            "making new rule to undo. Nothing was undone.\n"
-                        )
-                        input("Press enter to continue.")
-
-                    break  # Exit the for-loop to refresh the sorted_event_groups
-                else:
-                    print("No actions to undo.")
-
-            elif action == "skip":
-                continue  # Skip this event and continue with the next one
-
-            elif action == "save_and_exit":
-                # we ran through all the rules and classified everything
-                print_summary_and_maybe_process_actions(action_stack, rules)
-                return rules  # Return the updated rules after exiting the while loop
-
-            elif action == "quit_no_save":
-                return original_rules
-
-    # we ran through all the rules and classified everything
-    print_summary_and_maybe_process_actions(action_stack, rules)
-    return rules
+        response = (
+            input(
+                "Do you want to see (right now) all the event categorizations for the time period in question, "
+                "due to up to date regex filters? (y/n): "
+            )
+            .strip()
+            .lower()
+        )
+        if response in ["y", "n"]:
+            return response == "y"
+        else:
+            print("\033[91mInvalid input. Please enter 'y' or 'n'.\033[0m")
 
 
 def main():
@@ -810,8 +885,19 @@ def main():
     #                   - second for the rule description
     #                   - third for the first regex code to add
     #         - 'e': to exit and stop categorizing events
+    show_specific_categorization = prompt_user_for_view_categorizations()
+
+    # This is the only time we show the actual rules used, if the user wanted that.
+    categorize_and_show_rules_used(events, rules, show_specific_categorization)
+
     rules = prompt_user_for_categorization(events, rules)
-    categorized_events = aw_transform.categorize(events, rules)
+    categorized_events = categorize_and_show_rules_used(events, rules, False)
+
+    show_specific_categorization = prompt_user_for_view_categorizations()
+
+    # finally prompt again, to get the delta.
+    categorize_and_show_rules_used(events, rules, show_specific_categorization)
+
     convert_categorized_data_to_csv(categorized_events)
 
 
